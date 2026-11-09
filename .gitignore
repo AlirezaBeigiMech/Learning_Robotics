@@ -13,5 +13,5 @@ log/
 build/
 install/
 *.tsbuildinfo
-# book PDFs and local references are never committed (see docs/reading/README.md)
-docs/reading/*.pdf
+# book PDFs and local reading material are never committed
+docs/reading/

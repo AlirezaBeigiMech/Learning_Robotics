@@ -11,8 +11,11 @@ measurements. Existing lessons are unchanged and keep their IDs, so progress is 
 |---|---|
 | Course robot | Wheel-legged biped: 2 legs × (hip + knee) + 2 wheel motors + IMU. Balances like an inverted pendulum, so control-loop timing has visible consequences. |
 | Hardware | **None required for the robot.** Physics in Gazebo (software-in-the-loop); motor-driver and IMU firmware run in **Emulica** (`Embedded_claw/replica-server`). |
-| Linux | Academy-managed **QEMU VMs** for Linux chapters (real GRUB, netplan, multiple NICs, multiple hosts). |
-| Real-time | **Real measurements required** → a **bare-metal x86 Linux host** (PREEMPT_RT) for Part IV, Ch 21 and the capstone. VMs run the same labs but latency is never graded there. |
+| Host OS | The repo **moves to the user's bare-metal Ubuntu machine**. The academy runs natively on Linux there, and that machine is also the PREEMPT_RT host. Windows support stays as a secondary platform for Parts I–II. |
+| Linux labs | Native Linux runtime on the Ubuntu host; **QEMU VMs** only where a lab needs its own kernel/GRUB/NICs (Ch 9, 11), **containers / network namespaces** for multi-host DDS (Ch 18). |
+| Real-time | **Real measurements required**: measured on the Ubuntu host itself with a PREEMPT_RT kernel. VMs and Windows run the same labs but latency is never graded there. |
+| Emulica | **Used only through its existing gRPC API; Emulica itself is not modified** (see 6.4). |
+| Pace | **Full-time**: dense lessons (2–4 h), light scaffolding, starter code gives structure but not solutions. |
 | Books | LKP 2e, SP 2e, CCIA 2e are available. *Mastering ROS 2* 4e is not yet; chapters cite it but lessons are written against the official ROS 2 / ros2_control docs. No book text is reproduced. |
 
 ## 6.2 Competencies (`course.yaml: competencies`)
@@ -111,26 +114,42 @@ Each chapter's interactive labs are in its `chapter.yaml` (`labs:`) and shown on
 Real-time performance is measured at Level 1 on bare metal. Level 2 checks firmware behaviour in simulation time,
 so a slow emulator cannot make the robot fall for reasons that would not happen on hardware.
 
-### Emulica work items
-* **CAN bridge**: connect the STM32F4 CAN model (`renoly/hw/st/stm32f4/stm32f4_can.py`) to Linux SocketCAN, plus
-  a multi-node CAN hub so 7 emulated MCUs share one bus.
-* **Plant bridge**: timer PWM-output and encoder-mode registers and an IMU (I²C/SPI) device model, exchanging
-  values with Gazebo every step.
-* **Lockstep time**: Emulica's machine timer and Gazebo step together; ROS 2 runs on `/clock`.
-* **Academy integration**: start/stop Emulica sessions from the runtime service; show its timeline (interrupts,
-  bus traffic) in a lab tab.
+### Emulica adapter (academy side only; Emulica is not modified)
+The academy talks to Emulica's existing gRPC services (`TelemetryService`, `ExecutionService`, `DebugService`).
+What that API supports today, and therefore what Level 2 can do:
+
+| Need | Existing API | Result |
+|---|---|---|
+| MCU → host CAN (status frames) | `StreamBusFrames` | ✅ adapter forwards frames to `vcan0` |
+| Host → MCU CAN (commands) | none (`BusDataInject` is SPI/I²C, one byte) | ❌ **gap** |
+| IMU readings into the MCU | `BusDataInject` on I2C1/SPI1 | 🟡 works, one gRPC call per byte: low rate only |
+| Encoder input | `PinInject` | 🟡 fine for slow signals; quadrature at speed is too fast for per-edge gRPC |
+| PWM / duty cycle out | `GetRegisterSnapshot` / peripheral output events | ✅ read timer compare registers |
+| Lockstep time | `Run` / `Pause` only, no "advance N µs" | ❌ **gap**: run/pause loops are approximate, not deterministic |
+| Timeline, interrupts, bus load | `StreamTelemetry`, `StreamEvents`, `StreamBusFrames` | ✅ Firmware tab |
+| Licence | `AuthService` | needs a local dev licence |
+
+Consequence: until Emulica gains **CAN RX injection** and a **time-step command** (two small server features, the
+owner's call), Ch 19 Level 2 covers firmware structure, CAN *transmit*, IMU over I²C, PWM output, interrupt timing
+and bus telemetry, in open loop or with slow closed loops. The full closed-loop "robot balances on emulated
+firmware" result (Ch 19 final project, capstone Level 2) is marked **blocked on those two features**. Level 1 SIL
+covers closed-loop CAN control in the meantime.
 
 ## 6.5 Platform work
 
 ### Runtimes (`chapter.runtime`)
 | Runtime | Plan |
 |---|---|
-| `windows` | Existing native runtime (Job Object, pixi RoboStack). No change. |
-| `linux` | New `LinuxRuntime`: academy-managed QEMU VMs (Ubuntu 24.04 + ROS 2 Jazzy) reached through an agent over SSH. Several VMs, several virtual NICs per VM, `tc netem` for faults. |
-| `linux_rt_host` | Same `LinuxRuntime`, targeting a bare-metal x86 machine over SSH. Latency grading only runs here; the UI shows host, kernel, isolation settings and load next to every number. |
+| `windows` | Existing native Windows runtime (Job Object, ConPTY, MSVC). Kept for Parts I–II. |
+| `linux` | **Native Linux runtime** on the Ubuntu host (process groups + cgroup v2 limits instead of Job Objects, a PTY terminal, GCC). QEMU VMs / containers started by the academy where a lab needs its own kernel, NICs or several hosts; `tc netem` for faults. |
+| `linux_rt_host` | The same Ubuntu host booted with a PREEMPT_RT kernel. Latency grading only runs here; the UI shows host, kernel, isolation settings and load next to every number. |
 
-**Bare-metal host:** cheapest good option is an Intel N100-class mini-PC with **two Intel i226 NICs** (one dedicated
-to EtherCAT). Zero-cost alternative: boot this PC from an Ubuntu USB drive for the real-time chapters.
+Porting the academy to Linux is milestone **C0**: `pixi.toml` gains `linux-64`; `runtime/winjob.py`,
+`runtime/terminal.py` (ConPTY), `runtime/process.py`, `runtime/session.py`, `assessment/grader.py` and the MSVC
+activation get Linux counterparts behind the existing interfaces.
+
+For EtherCAT (Ch 21) the Ubuntu host needs a **second NIC** dedicated to the bus (a USB or PCIe Intel NIC is fine
+for the software-slave labs).
 
 ### New lab tabs
 * **Latency**: live histograms and percentiles (`cyclictest`, `rtla timerlat`, controller period monitor); compare two runs.
@@ -159,13 +178,15 @@ to EtherCAT). Zero-cost alternative: boot this PC from an Ubuntu USB drive for t
 
 | Milestone | Content | Platform |
 |---|---|---|
+| **C0** | Existing Ch 1–4 lessons re-validated on Ubuntu | Linux-native runtime, `linux-64` pixi env, grader on Linux |
 | **C1** | Ch 2 remaining lessons, Ch 5 | `rt_safety` grading groundwork |
 | **C2** | Ch 4 wheel-legged robot (Stage 0), Ch 6, Ch 7 | Balance tab, `balance` grading |
 | **C3** | Ch 8, Ch 17 | Latency tab (intra- vs inter-process), QoS playground |
 | **C4** | Ch 9–12, Ch 18 | `LinuxRuntime` with QEMU VMs, System and Network tabs |
 | **C5** | Ch 13–16, Ch 20 (Level 1 SIL) | Bare-metal target, Latency + Load tabs, `latency_budget`, Bus tab |
-| **C6** | Ch 19 (Level 2) | Emulica CAN bridge, plant bridge, lockstep time, Firmware tab |
+| **C6** | Ch 19 (Level 2, within API limits) | Emulica gRPC adapter: CAN TX → vcan, I²C IMU injection, PWM readout, Firmware tab |
 | **C7** | Ch 21–25 | Software EtherCAT slave, Docker/Ansible labs, `idempotent` |
 | **C8** | Ch 26 capstone, Ch 28 elective | Capstone spec and fault-injection grader |
 
-C1–C3 run on Windows today. C4 needs QEMU, C5 needs the bare-metal host, C6 needs the Emulica bridges.
+C0 happens on the Ubuntu machine. C1–C3 also run on Windows. C5 needs the PREEMPT_RT kernel on the Ubuntu host.
+C6's closed-loop result needs CAN RX injection and a time-step command in Emulica (not planned here).
