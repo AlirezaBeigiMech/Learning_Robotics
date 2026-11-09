@@ -1,0 +1,30 @@
+number: 16
+title: 'x86 Real-Time Benchmarking: Firmware, Caches, SMIs'
+summary: BIOS/firmware settings, SMIs, power states and cache contention, and how to benchmark them honestly.
+status: planned
+runtime: linux_rt_host
+competencies:
+- x86_perf
+- rt_cpp
+readings:
+- source: sp
+  chapters: 2, 6, 7, 12, 13, 14
+  note: methodology, CPUs, memory, benchmarking, perf, hwlat
+- source: drepper
+  chapters: 3–6
+  note: caches, NUMA, what programmers can do
+- source: docs
+  note: Red Hat RT tuning guide (BIOS); Intel TCC; kernel resctrl
+labs:
+- 'hwlat detector run: find SMIs and firmware stalls'
+- C-states / turbo / SMT experiment matrix with automatic histogram comparison
+- Noisy neighbour (stress-ng --cache) vs resctrl cache partitioning, perf cache-miss counters
+lessons: []
+topics:
+- C-states/P-states
+- SMT
+- SMIs
+- LLC contention
+- Intel RDT/CAT
+- benchmarking methodology
+final_project: A benchmark report on your x86 box that another engineer could reproduce.

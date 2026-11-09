@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- One position-controlled joint: command its position, read back position and velocity. -->
+  <xacro:macro name="position_joint" params="name">
+    <joint name="${name}">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </xacro:macro>
+
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <xacro:position_joint name="shoulder_pan_joint"/>
+    <!-- TODO 1: the other six arm joints and BOTH finger joints (left_finger_joint, right_finger_joint). -->
+  </ros2_control>
+
+  <!-- TODO 2: the <gazebo> plugin element (gz_ros2_control-system / gz_ros2_control::GazeboSimROS2ControlPlugin)
+       with <parameters>$(find arm_sim)/config/controllers.yaml</parameters>. -->
+
+</robot>

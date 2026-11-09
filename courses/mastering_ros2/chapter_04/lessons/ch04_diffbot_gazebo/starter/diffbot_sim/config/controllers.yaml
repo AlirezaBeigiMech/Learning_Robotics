@@ -1,0 +1,25 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+diff_drive_controller:
+  ros__parameters:
+    # TODO 3: which joints are the left and right wheels?
+    left_wheel_names: []
+    right_wheel_names: []
+
+    # TODO 4: the controller turns /cmd_vel into wheel speeds (and wheel speeds into odometry) with
+    #         these two numbers. They must match the model (see the xacro properties in diffbot.urdf.xacro).
+    wheel_separation: 0.0
+    wheel_radius: 0.0
+
+    base_frame_id: base_footprint
+    odom_frame_id: odom
+    enable_odom_tf: true
+    publish_rate: 50.0

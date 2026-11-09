@@ -1,0 +1,22 @@
+number: 22
+title: EtherNet/IP and CIP
+summary: CIP objects, implicit vs explicit messaging and how EtherNet/IP devices fit next to a ROS 2 robot.
+status: planned
+runtime: linux
+competencies:
+- fieldbus
+readings:
+- source: odva
+  note: PUB00138 EtherNet/IP Technology Overview; PUB00122 CIP brochure
+- source: docs
+  note: OpENer open-source stack
+labs:
+- Run an OpENer adapter in a container; read/write assemblies from a C++ scanner
+- Capture and decode implicit (UDP) vs explicit (TCP) traffic
+lessons: []
+topics:
+- CIP object model
+- implicit/explicit messaging
+- RPI
+- OpENer
+final_project: A ROS 2 node bridging an EtherNet/IP device's I/O assembly.

@@ -1,0 +1,34 @@
+number: 2
+title: Getting Started with ROS 2 Programming
+book_chapter:
+  number: 2
+  title: Getting Started with ROS Programming
+summary: 'Write real ROS 2 programs: publishers, subscribers, custom interfaces, services, actions, launch files
+  and parameters.'
+status: available
+runtime: windows
+competencies:
+- concurrency
+- dds
+readings:
+- source: mr2
+  chapters: 2–3
+- source: docs
+  note: 'ROS 2 docs: About Quality of Service settings'
+labs:
+- Publisher/subscriber with a live topic chart
+- Broken-QoS detection in the graph
+- 'Planned: custom interfaces, services, actions, parameters, launch'
+lessons:
+- ch02_pubsub
+topics:
+- ament_cmake (C++)
+- rclcpp
+- custom msg/srv/action
+- services
+- actions
+- launch
+- parameters
+- executors
+- QoS
+final_project: A multi-node application with a custom message, a service, an action and one launch file.

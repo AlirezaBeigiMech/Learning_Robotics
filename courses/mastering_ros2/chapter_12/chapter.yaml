@@ -1,0 +1,27 @@
+number: 12
+title: 'Kernel and Driver Debugging: ftrace, perf, BPF'
+summary: 'Find out what the kernel and drivers are doing: dynamic debug, ftrace, perf and bpftrace.'
+status: planned
+runtime: linux
+competencies:
+- linux
+- x86_perf
+readings:
+- source: sp
+  chapters: 4, 13, 14, 15
+- source: lkp
+  chapters: 4–5
+- source: docs
+  note: 'kernel docs: dynamic-debug-howto'
+labs:
+- Trace a misbehaving module with function_graph
+- perf record/report flame graph of a ROS 2 node
+- 'bpftrace one-liners: off-CPU time and wakeup latency of your control thread'
+lessons: []
+topics:
+- dynamic debug
+- ftrace
+- perf
+- bpftrace
+- kprobes/tracepoints
+final_project: Root-cause a planted driver/latency bug from traces alone.

@@ -1,0 +1,27 @@
+number: 18
+title: Multi-Host ROS 2 Debugging
+summary: 'ROS 2 across several hosts and NICs: discovery failures, shared-memory vs UDP transport, dropped and delayed
+  messages, and the tools to prove where they went.'
+status: planned
+runtime: linux
+competencies:
+- dds
+- linux
+- concurrency
+readings:
+- source: sp
+  chapters: '10'
+- source: docs
+  note: ROS 2 DDS tuning; Cyclone/Fast DDS network config; Wireshark RTPS dissector; ros2_tracing; performance_test
+labs:
+- Multi-host topology in containers (2–3 hosts, 2 NICs each) shown as a live network map
+- 'Break-and-fix scenarios: blocked multicast, wrong interface, domain mismatch, small socket buffers'
+- Wireshark/tshark RTPS capture summarised in the UI; ros2_tracing end-to-end latency
+lessons: []
+topics:
+- ROS_STATIC_PEERS
+- discovery server
+- SHM vs UDP
+- interface whitelisting
+- ros2 doctor
+final_project: Diagnose a multi-host system with several independent faults (graded by behaviour).

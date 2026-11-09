@@ -1,0 +1,27 @@
+number: 15
+title: Deterministic ros2_control Loops Under Load
+summary: Run the controller manager at 1 kHz on the RT host and keep jitter bounded while the system is loaded.
+status: planned
+runtime: linux_rt_host
+competencies:
+- ros2_control
+- rt_cpp
+readings:
+- source: mr2
+  chapters: '6'
+- source: docs
+  note: control.ros.org controller_manager RT notes; ROS 2 Real-Time WG; Universal_Robots_ROS2_Driver as a production
+    example
+labs:
+- The wheel-legged robot's controller_manager at 1 kHz on the bare-metal host (SIL plant over vcan), period jitter
+  streamed live
+- Load generator panel (CPU, memory, network, DDS traffic) while watching jitter and pitch angle
+- 'Timing-fault injection: show how added jitter destabilises balance'
+- 'Grader: p99.9 / max period error under load on isolated vs non-isolated CPUs'
+lessons: []
+topics:
+- controller_manager RT thread
+- update_rate
+- executor priority
+- jitter budgets
+final_project: A 1 kHz control loop that meets a stated jitter budget under load.

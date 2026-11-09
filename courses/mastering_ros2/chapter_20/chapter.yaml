@@ -1,0 +1,24 @@
+number: 20
+title: CAN and CANopen with SocketCAN
+summary: CAN frames, arbitration and CANopen objects on Linux SocketCAN, connected to ros2_control.
+status: planned
+runtime: linux
+competencies:
+- fieldbus
+- ros2_control
+readings:
+- source: docs
+  note: 'kernel docs: SocketCAN; can-utils; CSS Electronics CAN/CANopen guides; ros2_canopen docs'
+labs:
+- vcan virtual bus with a live CAN frame inspector tab
+- Write a SocketCAN reader/writer in C++, then the robot's CAN hardware interface on top of it
+- Bridge vcan to the Ch 19 emulated motor nodes; measure bus load at 1 kHz with 7 nodes
+- ros2_canopen with a simulated CiA 402 drive
+lessons: []
+topics:
+- CAN frames & arbitration
+- SocketCAN
+- CANopen OD/PDO/SDO
+- CiA 402
+- ros2_canopen
+final_project: A CANopen drive controlled through ros2_control (virtual, real hardware optional).

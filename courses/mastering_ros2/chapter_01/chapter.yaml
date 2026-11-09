@@ -1,0 +1,27 @@
+number: 1
+title: Introduction to ROS 2
+book_chapter:
+  number: 1
+  title: Introduction to ROS
+summary: 'How a ROS 2 system is organised without a master: nodes, DDS discovery, domains, workspaces and packages.'
+status: available
+runtime: windows
+competencies:
+- concurrency
+- dds
+readings:
+- source: mr2
+  chapters: 1–2
+labs:
+- Live DDS graph of your first node
+- Domain IDs and localhost discovery
+lessons:
+- ch01_first_node
+topics:
+- ROS 2 architecture
+- DDS discovery
+- computation graph
+- workspaces & packages
+- QoS
+- distributions
+final_project: Create a workspace and package, run your first node and inspect it in the live graph.

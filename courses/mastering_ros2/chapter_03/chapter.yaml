@@ -1,0 +1,27 @@
+number: 3
+title: Working with ROS 2 for 3D Modeling
+book_chapter:
+  number: 3
+  title: Working with ROS for 3D Modeling
+summary: Model the seven-DOF arm and the differential-drive robot with URDF and xacro; inspect frames with TF2.
+status: available
+runtime: windows
+competencies:
+- ros2_control
+readings:
+- source: mr2
+  chapters: '4'
+labs:
+- Live xacro preview and 3D viewer
+- TF tree inspector and transform playground
+lessons:
+- ch03_pan_tilt
+- ch03_seven_dof_arm
+- ch03_diff_drive
+topics:
+- URDF
+- xacro
+- inertia & collision
+- TF2
+- robot_state_publisher
+final_project: Complete xacro models for both robots.

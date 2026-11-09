@@ -1,0 +1,105 @@
+id: ch03_diff_drive
+title: The Differential-Drive Mobile Robot
+description: Model the course's two-wheeled mobile robot with xacro macros, following the REP 103/105 frame conventions,
+  with wheels and casters that really touch the ground.
+book_reference:
+  chapter: 3
+  title: Working with ROS for 3D Modeling
+  sections:
+  - Creating a robot model for the differential drive mobile robot
+difficulty: intermediate
+estimated_minutes: 60
+objectives:
+- Apply the ROS frame conventions for mobile robots (base_footprint, base_link, REP 103/105).
+- Write a parameterised xacro macro and instantiate it with mirrored arguments.
+- Model continuous wheel joints and orient cylinders with rpy.
+- Verify ground contact and wheel geometry from the model.
+prerequisites:
+- ch03_seven_dof_arm
+ros_dependencies:
+- robot_state_publisher
+- xacro
+skills:
+- urdf.mobile_base
+- xacro.macros
+- urdf.continuous_joints
+- ros.rep105
+workspace:
+  package: diffbot_description
+checkpoints:
+- id: model
+  title: Diffbot model matches the specification
+  tests:
+  - test_model.py
+- id: tf
+  title: Live TF from robot_state_publisher
+  tests:
+  - test_tf.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_model.py
+  - test_tf.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- tf
+- graph
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Frames of a mobile robot
+  kind: read
+  content: content/01-frames.md
+  completion:
+    type: manual
+- id: write_wheels
+  title: Write the wheels and laser
+  kind: code
+  content: content/02-wheels.md
+  focus_file: diffbot_description/urdf/diffbot.urdf.xacro
+  hints:
+  - 'Look at the caster macro: a joint + a link, parameterised by name and position. The wheel macro is the same
+    idea.'
+  - A URDF cylinder's axis is local z. A wheel's axle is y, so roll the shape's origin by ${pi/2}, but NOT the joint.
+  - 'Joint: type="continuous", <origin xyz="0 ${y_sign * wheel_separation / 2} 0"/>, <axis xyz="0 1 0"/>.'
+  - 'Use the cylinder_inertial macro with the same rotated origin: <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>.'
+  completion:
+    type: checkpoint
+    checkpoint: model
+- id: launch
+  title: Publish and spin the wheels
+  kind: run
+  content: content/03-launch.md
+  hints:
+  - Build, then Run ▸ ros2 launch diffbot_description display.launch.xml.
+  - Robot tab → Live → Publish /joint_states.
+  - 'Continuous joints have no limits: their sliders go from −π to π.'
+  - Verify while publishing.
+  completion:
+    type: tf_frames
+    frames:
+    - base_link
+    - left_wheel_link
+    - right_wheel_link
+    - laser_link
+- id: tf_check
+  title: Check the live TF
+  kind: code
+  content: content/04-tf.md
+  completion:
+    type: checkpoint
+    checkpoint: tf
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/05-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

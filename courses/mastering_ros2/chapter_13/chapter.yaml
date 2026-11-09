@@ -1,0 +1,27 @@
+number: 13
+title: PREEMPT_RT and Real-Time Application Design
+summary: 'What PREEMPT_RT changes in the kernel and how to write a real-time thread correctly: SCHED_FIFO, mlockall,
+  pre-faulting, clock_nanosleep with absolute deadlines.'
+status: planned
+runtime: linux_rt_host
+competencies:
+- rt_cpp
+- linux
+readings:
+- source: lkp
+  chapters: 11–13
+- source: docs
+  note: Linux Foundation realtime wiki (HOWTO build a simple RT application); Shuhao Wu 'Real-time programming with
+    Linux'; ROS 2 Real-Time WG
+labs:
+- Enable CONFIG_PREEMPT_RT (mainline since 6.12) and verify it at runtime
+- 'A 1 kHz SCHED_FIFO loop: grader checks mlockall, stack pre-fault, absolute timing'
+- Page-fault and allocation hunting in the hot path
+lessons: []
+topics:
+- PREEMPT_RT
+- SCHED_FIFO
+- mlockall
+- clock_nanosleep
+- threaded IRQs
+final_project: A real-time loop whose worst-case wake-up latency you can explain.

@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!--
+  The Chapter 3/4 differential-drive robot as a plain URDF (already expanded, no xacro), so that a simulator's
+  URDF importer and robot_state_publisher read exactly the same model.
+
+  Difference from Chapter 4: base_link is the ROOT link. CoppeliaSim's URDF importer cannot import a model whose
+  root link is empty (base_footprint had no geometry or mass), so base_footprint is gone and the bridge
+  places base_link directly in the odom frame, at axle height (z = wheel radius = 0.05 m).
+-->
+<robot name="diffbot">
+  <material name="grey"><color rgba="0.6 0.6 0.62 1"/></material>
+  <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
+  <material name="blue"><color rgba="0.2 0.45 0.85 1"/></material>
+
+  <link name="base_link">
+    <visual>
+      <geometry><cylinder radius="0.15" length="0.05"/></geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="0.15" length="0.05"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="5.0"/>
+      <inertia ixx="0.029167" ixy="0" ixz="0" iyy="0.029167" iyz="0" izz="0.05625"/>
+    </inertial>
+  </link>
+
+  <!-- passive ball casters: spheres touching the ground, fixed to base_link -->
+  <joint name="caster_front_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_front_link"/>
+    <origin xyz="0.12 0 -0.025" rpy="0 0 0"/>
+  </joint>
+  <link name="caster_front_link">
+    <visual><geometry><sphere radius="0.025"/></geometry><material name="black"/></visual>
+    <collision><geometry><sphere radius="0.025"/></geometry></collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+  <joint name="caster_back_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_back_link"/>
+    <origin xyz="-0.12 0 -0.025" rpy="0 0 0"/>
+  </joint>
+  <link name="caster_back_link">
+    <visual><geometry><sphere radius="0.025"/></geometry><material name="black"/></visual>
+    <collision><geometry><sphere radius="0.025"/></geometry></collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000025"/>
+    </inertial>
+  </link>
+
+  <!-- driven wheels: the cylinder is rolled by pi/2 so its axis points along y; the joint spins about y -->
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel_link"/>
+    <origin xyz="0 0.16 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <link name="left_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <geometry><cylinder radius="0.05" length="0.025"/></geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <geometry><cylinder radius="0.05" length="0.025"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.000339" ixy="0" ixz="0" iyy="0.000339" iyz="0" izz="0.000625"/>
+    </inertial>
+  </link>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel_link"/>
+    <origin xyz="0 -0.16 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <link name="right_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <geometry><cylinder radius="0.05" length="0.025"/></geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <geometry><cylinder radius="0.05" length="0.025"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="1.5707963 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.000339" ixy="0" ixz="0" iyy="0.000339" iyz="0" izz="0.000625"/>
+    </inertial>
+  </link>
+
+  <!-- laser scanner on a short mast, 8 cm ahead of the centre: 12 cm above the ground, above the wheels' tops (10 cm),
+       so its beams do not hit the robot itself -->
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <origin xyz="0.08 0 0.07" rpy="0 0 0"/>
+  </joint>
+  <link name="laser_link">
+    <visual><geometry><cylinder radius="0.03" length="0.03"/></geometry><material name="blue"/></visual>
+    <collision><geometry><cylinder radius="0.03" length="0.03"/></geometry></collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.00003" ixy="0" ixz="0" iyy="0.00003" iyz="0" izz="0.000045"/>
+    </inertial>
+  </link>
+</robot>

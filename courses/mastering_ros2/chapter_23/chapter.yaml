@@ -1,0 +1,28 @@
+number: 23
+title: Docker for Real-Time ROS 2
+summary: Containerise a ROS 2 control stack without losing determinism or DDS discovery.
+status: planned
+runtime: linux
+competencies:
+- infra
+- dds
+- rt_cpp
+readings:
+- source: sp
+  chapters: '11'
+- source: mr2
+  chapters: '13'
+- source: docs
+  note: Docker docs; ROS 2 Real-Time WG container notes
+labs:
+- Dockerfile for your stack, graded on image size and reproducibility
+- 'RT privileges: --cpuset-cpus, --cap-add SYS_NICE, --ulimit rtprio; jitter compared with bare metal'
+- Host vs bridge networking and shared IPC for DDS shared memory
+lessons: []
+topics:
+- multi-stage builds
+- cpuset
+- rtprio
+- host network/IPC
+- compose
+final_project: A containerised control stack with the same jitter as bare metal.

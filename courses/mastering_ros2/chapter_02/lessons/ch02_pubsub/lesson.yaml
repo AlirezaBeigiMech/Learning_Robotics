@@ -1,0 +1,178 @@
+id: ch02_pubsub
+title: Building a ROS 2 Publisher and Subscriber
+description: Write two nodes that communicate over a topic, watch the messages flow in the live ROS graph, break
+  the link with an incompatible QoS setting, and repair it.
+book_reference:
+  chapter: 2
+  title: Getting Started with ROS Programming
+  sections:
+  - Creating a ROS package
+  - Applications of topics, services, and actionlib (demo_topic_publisher / demo_topic_subscriber)
+difficulty: beginner
+estimated_minutes: 60
+objectives:
+- Explain how ROS 2 nodes find each other through DDS discovery and exchange messages on a named, typed topic.
+- Write a timer-driven rclcpp publisher that sends std_msgs/msg/Int32 at a fixed rate.
+- Write an rclcpp subscriber with a callback and keep the subscription alive.
+- Build an ament_cmake package with colcon and run its executables with ros2 run.
+- Inspect live topics, message types, rates and QoS profiles.
+- Diagnose and repair a QoS incompatibility between a publisher and a subscriber.
+prerequisites:
+- ch01_first_node
+ros_dependencies:
+- rclcpp
+- std_msgs
+skills:
+- ros2.package.ament_cmake
+- ros2.topics.publish
+- ros2.topics.subscribe
+- ros2.timers
+- ros2.qos.compatibility
+- ros2.debugging.graph_introspection
+lab_tabs:
+- graph
+- topics
+- terminal
+- tests
+workspace:
+  package: topics_lab
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Topics, nodes and discovery
+  kind: read
+  content: content/01-topics.md
+  completion:
+    type: manual
+- id: package
+  title: Anatomy of the package & first build
+  kind: run
+  content: content/02-package.md
+  focus_file: topics_lab/CMakeLists.txt
+  hints:
+  - The Build button runs `colcon build --merge-install` (Ninja + MSVC) in your workspace. Watch the Output panel.
+  - If the build fails, the first `error C…` line is usually the real cause; it is also underlined in the editor.
+  - Executables come from add_executable(<name> src/<file>.cpp) and are installed by install(TARGETS … DESTINATION
+    lib/${PROJECT_NAME}).
+  - After a successful build the Run menu lists `topics_lab/number_publisher` and `topics_lab/number_subscriber`.
+  completion:
+    type: manual
+- id: write_publisher
+  title: Write the publisher
+  kind: code
+  content: content/03-publisher.md
+  focus_file: topics_lab/src/number_publisher.cpp
+  hints:
+  - A node only does work inside callbacks once rclcpp::spin() runs. What should trigger a publish 10 times per
+    second?
+  - 'You need two Node methods: one creates the publisher, the other creates a periodic wall timer.'
+  - publisher_ = create_publisher<std_msgs::msg::Int32>("numbers", 10);  timer_ = create_wall_timer(100ms, [this]()
+    {publish_next();});
+  - 'In publish_next: std_msgs::msg::Int32 msg; msg.data = count_; publisher_->publish(msg); RCLCPP_INFO(...); ++count_;'
+  completion:
+    type: checkpoint
+    checkpoint: publisher
+- id: run_publisher
+  title: Run it and find it in the graph
+  kind: run
+  content: content/04-run-publisher.md
+  hints:
+  - Build first, then use Run ▸ topics_lab/number_publisher.
+  - Open the ROS Graph tab. Nodes appear within a couple of seconds of starting.
+  - 'If the node starts and exits immediately, read its output: a Python traceback names the failing line.'
+  - 'In the terminal you can also try: ros2 node list --no-daemon --spin-time 3'
+  completion:
+    type: graph
+    node: /number_publisher
+    publishes: /numbers
+- id: inspect_topic
+  title: Inspect the messages
+  kind: observe
+  content: content/05-inspect.md
+  completion:
+    type: manual
+- id: write_subscriber
+  title: Write the subscriber
+  kind: code
+  content: content/06-subscriber.md
+  focus_file: topics_lab/src/number_subscriber.cpp
+  hints:
+  - 'A subscriber is passive: it registers a callback that the executor calls when a message arrives.'
+  - Use create_subscription<MsgType>(topic, qos depth, callback) and store the returned SharedPtr.
+  - subscription_ = create_subscription<std_msgs::msg::Int32>("numbers", 10, [this](const std_msgs::msg::Int32 &
+    msg) {on_number(msg);});
+  - 'void on_number(const std_msgs::msg::Int32 & msg) { RCLCPP_INFO(get_logger(), "Received: %d", msg.data); }'
+  completion:
+    type: checkpoint
+    checkpoint: subscriber
+- id: run_both
+  title: Run both nodes
+  kind: observe
+  content: content/07-run-both.md
+  hints:
+  - 'Rebuild after editing (Windows: running nodes are stopped automatically before a build).'
+  - Start number_publisher, then number_subscriber. Each gets its own output tab.
+  - In the graph, the edge /number_publisher → /numbers → /number_subscriber should turn green.
+  - If the subscriber prints nothing, compare topic names and types in the Topic Inspector.
+  completion:
+    type: graph
+    node: /number_subscriber
+    subscribes: /numbers
+- id: break_qos
+  title: 'Debugging lab: break the link on purpose'
+  kind: debug
+  content: content/08-break-qos.md
+  focus_file: topics_lab/src/number_publisher.cpp
+  hints:
+  - You are changing only the publisher's QoS profile, not its topic or type.
+  - rclcpp::QoS(10) is the default profile; it has methods that change one policy at a time.
+  - Replace the plain 10 with rclcpp::QoS(10).best_effort().
+  - 'Rebuild, start both nodes, then open the ROS Graph: the /numbers edge turns red with the reason.'
+  completion:
+    type: graph_qos_mismatch
+    topic: /numbers
+- id: repair
+  title: Diagnose and repair
+  kind: debug
+  content: content/09-repair.md
+  focus_file: topics_lab/src/number_publisher.cpp
+  hints:
+  - Which side's requirement is not met? Read the reason on the red edge.
+  - A RELIABLE reader requires a RELIABLE writer. A BEST_EFFORT reader accepts either.
+  - Either restore the publisher to depth 10 (RELIABLE), or make the subscriber rclcpp::QoS(10).best_effort(); think
+    about which suits counting data.
+  - Restore create_publisher<std_msgs::msg::Int32>("numbers", 10), rebuild, run the Integration checkpoint.
+  completion:
+    type: checkpoint
+    checkpoint: integration
+- id: submit
+  title: Submit your project
+  kind: submit
+  content: content/10-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+checkpoints:
+- id: publisher
+  title: Publisher behaviour
+  tests:
+  - test_publisher.py
+- id: subscriber
+  title: Subscriber behaviour
+  tests:
+  - test_subscriber.py
+- id: integration
+  title: Publisher ↔ subscriber integration
+  tests:
+  - test_integration.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_publisher.py
+  - test_subscriber.py
+  - test_integration.py
+  - test_hidden.py
+  final: true
+completion:
+  checkpoint: final

@@ -1,0 +1,120 @@
+id: ch04_diffbot_gazebo
+title: Drive the Mobile Robot in Gazebo
+description: Put the differential-drive robot into a physics simulation with ros2_control, check its odometry against
+  Gazebo's ground truth, and write a C++ node that drives a precise distance.
+book_reference:
+  chapter: 4
+  title: Simulating Robots Using ROS and Gazebo
+  sections:
+  - Simulating a differential wheeled robot in Gazebo
+  - Adding the ROS teleop node
+difficulty: intermediate
+estimated_minutes: 90
+objectives:
+- Explain how Gazebo, gz_ros2_control and the controller_manager fit together.
+- Declare ros2_control command and state interfaces for a mobile base in URDF.
+- Configure diff_drive_controller so its kinematic model matches the robot.
+- Validate odometry against simulator ground truth.
+- Write a closed-loop C++ node that drives a precise distance using odometry feedback.
+prerequisites:
+- ch03_diff_drive
+ros_dependencies:
+- rclcpp
+- ros_gz_sim
+- gz_ros2_control
+- diff_drive_controller
+- joint_state_broadcaster
+skills:
+- sim.gazebo
+- ros2_control.interfaces
+- ros2_control.diff_drive_controller
+- odometry.validation
+- ros2.cpp.closed_loop_control
+workspace:
+  package: diffbot_sim
+checkpoints:
+- id: sim
+  title: Controllers & odometry vs. physics
+  tests:
+  - test_sim.py
+- id: drive
+  title: drive_forward reaches 1 m
+  tests:
+  - test_drive.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_sim.py
+  - test_drive.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- controllers
+- graph
+- tf
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Gazebo + ros2_control
+  kind: read
+  content: content/01-concept.md
+  completion:
+    type: manual
+- id: interfaces
+  title: Connect the wheels to ros2_control
+  kind: code
+  content: content/02-interfaces.md
+  focus_file: diffbot_sim/urdf/diffbot.ros2_control.xacro
+  hints:
+  - 'Two files: the <ros2_control> block says WHAT can be commanded; controllers.yaml says WHO commands it and how.'
+  - A wheel is driven by speed, so its command interface is velocity; odometry needs position and velocity state.
+  - wheel_separation is the distance between the two wheel joints (2 × 0.16 m); wheel_radius is the wheel_radius
+    property.
+  - 'left_wheel_names: ["left_wheel_joint"], right_wheel_names: ["right_wheel_joint"], wheel_separation: 0.32, wheel_radius:
+    0.05'
+  completion:
+    type: controllers_active
+    controllers:
+    - joint_state_broadcaster
+    - diff_drive_controller
+- id: teleop
+  title: Drive it by hand
+  kind: observe
+  content: content/03-teleop.md
+  completion:
+    type: manual
+- id: validate
+  title: Odometry vs. ground truth
+  kind: code
+  content: content/04-validate.md
+  completion:
+    type: checkpoint
+    checkpoint: sim
+- id: drive_node
+  title: Write drive_forward (C++)
+  kind: code
+  content: content/05-drive.md
+  focus_file: diffbot_sim/src/drive_forward.cpp
+  hints:
+  - 'This is a feedback loop: every odometry message tells you where you are; decide the command from that.'
+  - Remember the first position you see; distance travelled = std::hypot(x - x0, y - y0).
+  - cmd_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("/diff_drive_controller/cmd_vel", 10); and an
+    Odometry subscription on /diff_drive_controller/odom.
+  - 'In on_odom: if (travelled < distance_) cmd.twist.linear.x = std::min(speed_, 0.02 + 0.5 * remaining); else
+    0. Publish every time.'
+  completion:
+    type: checkpoint
+    checkpoint: drive
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/06-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

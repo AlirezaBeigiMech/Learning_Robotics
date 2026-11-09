@@ -1,0 +1,33 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    # TODO 3: list the seven arm joints, in order from the base to the gripper.
+    joints: []
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+
+gripper_controller:
+  ros__parameters:
+    # TODO 4: the two finger joints.
+    joints: []
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+
+# gz_ros2_control turns POSITION commands into joint velocities with a proportional gain. The default (0.1)
+# is too weak to lift a finger against gravity from its joint limit: in some arm poses one finger opens
+# "uphill" and never moves. 2.0 opens both fingers in every pose without oscillating (measured).
+gz_ros_control:
+  ros__parameters:
+    position_proportional_gain: 2.0

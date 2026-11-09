@@ -1,0 +1,21 @@
+number: 28
+title: Navigation, Manipulation and Perception
+summary: Nav2, MoveIt 2 and the perception stack for the robots you modelled in Part I.
+status: planned
+runtime: windows
+competencies: []
+readings:
+- source: mr2
+  chapters: 7–10
+labs:
+- Nav2 with slam_toolbox in Gazebo
+- MoveIt 2 MoveGroupInterface pick-and-place
+- cv_bridge / PCL perception pipeline
+lessons: []
+topics:
+- BehaviorTree.CPP
+- Nav2
+- MoveIt 2
+- cv_bridge
+- PCL
+final_project: A mobile manipulator that navigates, perceives and picks.

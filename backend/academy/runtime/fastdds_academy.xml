@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Applied to every student and grader process (FASTRTPS_DEFAULT_PROFILES_FILE; Jazzy ships Fast DDS 2.x).
+  A node that is hard-killed cannot announce its departure. With the default 20 s participant lease it
+  stays visible in the ROS graph for ~18 s ("ghost node"), which confuses students and contaminates
+  consecutive grader tests. Measured on Windows: 18.2 s with defaults, 3.0 s with this profile.
+-->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <participant profile_name="academy_default_participant" is_default_profile="true">
+    <rtps>
+      <builtin>
+        <discovery_config>
+          <leaseDuration><sec>3</sec></leaseDuration>
+          <leaseAnnouncement><sec>1</sec></leaseAnnouncement>
+        </discovery_config>
+      </builtin>
+    </rtps>
+  </participant>
+</profiles>

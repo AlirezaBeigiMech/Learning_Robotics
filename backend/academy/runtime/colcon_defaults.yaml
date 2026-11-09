@@ -1,0 +1,9 @@
+# Applied to every colcon command in student and grader environments (COLCON_DEFAULTS_FILE), so the
+# Build button, the grader and a `colcon build` typed in the terminal all build the same way.
+#
+# Ninja, not the default "Visual Studio 16 2019" generator: colcon passes `-G "Visual Studio ..."` on Windows
+# by itself (ignoring CMAKE_GENERATOR), and MSBuild's FileTracker then fails once colcon's nested build paths
+# exceed MAX_PATH (260 chars).
+build:
+  merge-install: true
+  cmake-args: ["-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release"]

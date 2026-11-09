@@ -1,0 +1,24 @@
+<!--
+  CoppeliaSim bring-up:
+    1. robot_state_publisher publishes the model on /robot_description and the fixed joints on /tf_static
+       (the academy's Robot tab draws the robot from them).
+    2. CoppeliaSim starts its simulation immediately (-s0 = run until stopped) and loads two add-ons:
+         -a  diffbot_bridge.lua  imports diffbot.urdf and bridges it to ROS 2 (your code)
+         -b  ground_truth.lua    publishes the simulator's true pose on /ground_truth
+       Named parameters (-G<key>=<value>) pass values to scripts: diffbot.urdf is read with
+       sim.getNamedStringParam('diffbot.urdf').
+  `coppeliasim` is the academy's launcher for the installed CoppeliaSim: it streams the log line by line.
+  headless:=false opens the CoppeliaSim window on your desktop.
+-->
+<launch>
+  <arg name="headless" default="true"/>
+  <let name="share" value="$(find-pkg-share diffbot_coppelia)"/>
+  <let name="addons" value="-a$(var share)/coppeliasim/diffbot_bridge.lua -b$(var share)/coppeliasim/ground_truth.lua -Gdiffbot.urdf=$(var share)/urdf/diffbot.urdf"/>
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" type="str" value="$(command 'xacro $(var share)/urdf/diffbot.urdf')"/>
+  </node>
+
+  <executable cmd="coppeliasim -h -s0 $(var addons)" output="screen" shell="true" if="$(var headless)"/>
+  <executable cmd="coppeliasim -s0 $(var addons)" output="screen" shell="true" unless="$(var headless)"/>
+</launch>

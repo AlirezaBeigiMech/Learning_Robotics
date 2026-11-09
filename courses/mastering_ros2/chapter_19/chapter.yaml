@@ -1,0 +1,31 @@
+number: 19
+title: Robot Firmware on Emulated MCUs
+summary: Write the wheel-legged robot's embedded firmware (motor-driver node and IMU node) in C for an STM32F4 and
+  run it unmodified in the Emulica emulator, connected to the physics sim.
+status: planned
+runtime: linux
+competencies:
+- fieldbus
+- rt_cpp
+- ros2_control
+readings:
+- source: rm0090
+  note: bxCAN, general-purpose timers (PWM, encoder mode), ADC
+- source: emulica
+  note: STM32F4 CAN model, timeline/bus-traffic telemetry
+- source: docs
+  note: Zephyr CAN API; CANopenNode; micro-ROS (optional)
+labs:
+- 'Motor-driver firmware: velocity/torque loop on a timer interrupt, encoder input, PWM output'
+- 'CAN protocol on bxCAN: command/status frames, heartbeat, watchdog that disables the motor'
+- Six emulated motor nodes + one IMU node on one virtual CAN bus, in lockstep with Gazebo
+- 'Emulica timeline: interrupt latency and bus load per node'
+lessons: []
+topics:
+- STM32F4 bxCAN
+- timer PWM/encoder
+- interrupt-driven control loop
+- watchdogs
+- emulation in the loop
+- lockstep simulation time
+final_project: The wheel-legged robot balancing in Gazebo with all motor and IMU firmware emulated.

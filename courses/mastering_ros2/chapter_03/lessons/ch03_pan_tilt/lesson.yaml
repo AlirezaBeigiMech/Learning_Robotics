@@ -1,0 +1,137 @@
+id: ch03_pan_tilt
+title: 'Your First Robot Model: a Pan-Tilt Unit'
+description: Describe a two-joint pan-tilt unit in URDF, inspect it in 3D, publish it with robot_state_publisher
+  and drive its joints through real /joint_states and TF.
+book_reference:
+  chapter: 3
+  title: Working with ROS for 3D Modeling
+  sections:
+  - Understanding robot modeling using URDF
+  - Creating our first URDF model
+  - Visualizing the 3D robot model in RViz
+  - Adding physical and collision properties
+difficulty: beginner
+estimated_minutes: 60
+objectives:
+- Describe a robot as a tree of links connected by joints, each joint defining a child frame.
+- Write <link> elements with visual, collision and inertial properties.
+- Write revolute and fixed <joint> elements with origins, axes and limits.
+- Explain how robot_state_publisher combines the URDF with /joint_states to produce TF.
+- Inspect frames, joint limits, collision geometry and the TF tree of a running robot.
+prerequisites:
+- ch02_pubsub
+ros_dependencies:
+- robot_state_publisher
+- xacro
+skills:
+- urdf.links
+- urdf.joints
+- urdf.inertia
+- tf2.tree
+- ros2.robot_state_publisher
+- ros2.launch.basics
+workspace:
+  package: pan_tilt_description
+checkpoints:
+- id: model
+  title: Pan-tilt model matches the specification
+  tests:
+  - test_model.py
+- id: tf
+  title: Live TF from robot_state_publisher
+  tests:
+  - test_tf.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_model.py
+  - test_tf.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- tf
+- graph
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Links, joints and frames
+  kind: read
+  content: content/01-urdf.md
+  completion:
+    type: manual
+- id: origins
+  title: Origins and rotations (rpy)
+  kind: read
+  content: content/02-origins.md
+  completion:
+    type: manual
+- id: write_model
+  title: Complete the pan-tilt URDF
+  kind: code
+  content: content/03-model.md
+  focus_file: pan_tilt_description/urdf/pan_tilt.urdf
+  hints:
+  - Each TODO is either a <link> (a body) or a <joint> (how a body is attached). Copy the shape of base_link and
+    pan_joint.
+  - A joint's <origin> places the CHILD frame relative to the PARENT frame; a visual's <origin> places the shape
+    relative to its own link frame.
+  - 'tilt_joint: <origin xyz="0 0 0.30"/>, <axis xyz="0 1 0"/>, <limit lower="-1.2" upper="1.2" effort="5" velocity="1.5"/>.'
+  - camera_joint is type="fixed" with <origin xyz="0.125 0 0.03"/>, and camera_link is just <link name="camera_link"/>.
+  completion:
+    type: checkpoint
+    checkpoint: model
+- id: preview
+  title: Inspect it in 3D
+  kind: observe
+  content: content/04-preview.md
+  completion:
+    type: manual
+- id: launch
+  title: Publish it with robot_state_publisher
+  kind: run
+  content: content/05-launch.md
+  focus_file: pan_tilt_description/launch/display.launch.xml
+  hints:
+  - 'Build first: the launch file loads the INSTALLED copy from share/pan_tilt_description/urdf.'
+  - Run ▸ ros2 launch pan_tilt_description display.launch.xml
+  - In the ROS Graph, /robot_state_publisher should publish /robot_description, /tf and /tf_static.
+  - If it exits immediately, the launch output names the problem (often a URDF parse error).
+  completion:
+    type: graph
+    node: /robot_state_publisher
+    publishes: /robot_description
+- id: move_joints
+  title: Drive the joints through /joint_states
+  kind: observe
+  content: content/06-joints.md
+  hints:
+  - Open the Robot tab, switch the source to Live, and enable “Publish /joint_states”.
+  - Moving joints only get TF once someone publishes their values; fixed joints are on /tf_static immediately.
+  - The TF Tree tab lists each frame with its parent and whether it is static.
+  - Verify while the sliders are publishing.
+  completion:
+    type: tf_frames
+    frames:
+    - pan_link
+    - tilt_link
+    - camera_link
+- id: tf_check
+  title: Check the live TF
+  kind: code
+  content: content/07-tf.md
+  completion:
+    type: checkpoint
+    checkpoint: tf
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/08-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

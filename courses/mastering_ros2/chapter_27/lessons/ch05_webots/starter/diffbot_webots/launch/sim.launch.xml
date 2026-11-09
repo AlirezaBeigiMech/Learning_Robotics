@@ -1,0 +1,30 @@
+<!--
+  Webots bring-up:
+    1. Webots loads the world and waits: the robot's controller is "<extern>", i.e. your webots_driver node.
+       batch mode never opens dialogs; headless:=false shows the Webots window on your desktop.
+    2. webots_driver connects to that robot (WEBOTS_CONTROLLER_URL = ipc://<port>/<robot name>) and from then on
+       steps the simulation, publishing /clock, /joint_states, /odom, /tf and /scan.
+    3. robot_state_publisher publishes the model and turns /joint_states into the wheels' TF.
+  Every node here runs on SIMULATED time (/clock from webots_driver).
+  `webots` is the academy's launcher for the Webots you installed. port: one per academy domain, so a
+  simulation you started and a grader run never connect to each other's robots.
+-->
+<launch>
+  <arg name="world" default="$(find-pkg-share diffbot_webots)/worlds/diffbot.wbt"/>
+  <arg name="port" default="$(env ACADEMY_SIM_PORT 1234)"/>
+  <arg name="headless" default="true"/>
+  <set_parameter name="use_sim_time" value="true"/>
+
+  <executable cmd="webots --batch --mode=realtime --no-rendering --minimize --port=$(var port) $(var world)"
+              output="screen" shell="true" if="$(var headless)"/>
+  <executable cmd="webots --batch --mode=realtime --port=$(var port) $(var world)"
+              output="screen" shell="true" unless="$(var headless)"/>
+
+  <node pkg="diffbot_webots" exec="webots_driver" output="screen">
+    <env name="WEBOTS_CONTROLLER_URL" value="ipc://$(var port)/diffbot"/>
+  </node>
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" type="str" value="$(command 'xacro $(find-pkg-share diffbot_webots)/urdf/diffbot.urdf')"/>
+  </node>
+</launch>

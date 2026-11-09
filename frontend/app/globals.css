@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --bg: #111214;
+  --panel: #1a1b1e;
+  --panel-2: #222327;
+  --line: #2e3035;
+  --ink: #ecebe8;
+  --ink-2: #c3c2b7;
+  --muted: #8b8a84;
+  --accent: #3987e5;
+  --good: #2fa36b;
+  --warn: #c98500;
+  --bad: #e66767;
+  /* categorical series (dark-surface steps, fixed order) */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+}
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; }
+
+/* lesson prose */
+.prose-lesson h2 { font-size: 1.15rem; font-weight: 600; margin: 0.2rem 0 0.75rem; }
+.prose-lesson h3 { font-size: 1rem; font-weight: 600; margin: 1.1rem 0 0.4rem; }
+.prose-lesson p { margin: 0.55rem 0; line-height: 1.6; color: var(--ink-2); }
+.prose-lesson ul, .prose-lesson ol { margin: 0.5rem 0 0.5rem 1.25rem; color: var(--ink-2); line-height: 1.6; }
+.prose-lesson ul { list-style: disc; }
+.prose-lesson ol { list-style: decimal; }
+.prose-lesson strong { color: var(--ink); }
+.prose-lesson code { font-family: "Cascadia Code", Consolas, monospace; font-size: 0.85em; background: var(--panel-2); padding: 0.1em 0.35em; border-radius: 4px; }
+.prose-lesson pre { background: #0c0d0f; border: 1px solid var(--line); border-radius: 6px; padding: 0.7rem 0.8rem; overflow-x: auto; margin: 0.7rem 0; }
+.prose-lesson pre code { background: none; padding: 0; font-size: 12.5px; }
+.prose-lesson table { border-collapse: collapse; margin: 0.7rem 0; font-size: 13px; }
+.prose-lesson th, .prose-lesson td { border: 1px solid var(--line); padding: 0.3rem 0.5rem; text-align: left; vertical-align: top; }
+.prose-lesson th { background: var(--panel-2); }
+
+/* resize handles */
+[data-panel-resize-handle-id] { background: var(--line); transition: background 0.15s; }
+[data-panel-resize-handle-id]:hover, [data-panel-resize-handle-id][data-resize-handle-active] { background: var(--accent); }
+
+/* react flow dark */
+.react-flow { --xy-background-color: var(--bg); }
+.react-flow__attribution { display: none; }
+
+@keyframes flow { to { stroke-dashoffset: -20; } }
+.flowing { stroke-dasharray: 6 4; animation: flow 0.8s linear infinite; }

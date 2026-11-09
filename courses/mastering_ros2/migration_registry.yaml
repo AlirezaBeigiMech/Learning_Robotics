@@ -1,0 +1,175 @@
+# ROS 1 → ROS 2 migration registry (spec §17).
+# status ∈ Not Started | Architecture Designed | Implemented | Builds Successfully | Runtime Validated | Exercise Validated
+# A status above "Architecture Designed" is only recorded with `evidence`: the automated check that passed.
+# Validation platform for statuses recorded here: Windows 11, RoboStack ROS 2 Jazzy (pixi), 2026-10-10.
+
+- original: "Chapter2/mastering_ros_demo_pkg: demo_topic_publisher.cpp + demo_topic_subscriber.cpp"
+  ros1: roscpp, ros::Rate + spinOnce loop, std_msgs/Int32 on /numbers at 10 Hz, ROS_INFO
+  ros2: C++ rclcpp node (class deriving rclcpp::Node) with create_wall_timer(100ms) + create_publisher/create_subscription,
+        rclcpp::spin executor, explicit QoS — the same language as the book's original example
+  changed_apis: [ros::init → rclcpp::init, NodeHandle.advertise<T> → Node::create_publisher<T>, ros::Rate + spinOnce loop → create_wall_timer,
+                 ros::Subscriber(callback) → create_subscription<T> returning a SharedPtr that must be kept, ROS_INFO → RCLCPP_INFO]
+  changed_packages: [catkin → ament_cmake, roscpp → rclcpp]
+  changed_configuration: [package.xml format 3 (ament_cmake), CMakeLists find_package + ament_target_dependencies + install(TARGETS) into lib/<pkg>;
+                          built with Ninja + MSVC on Windows (Visual Studio generator fails on MAX_PATH)]
+  changed_behavior: [No master; DDS discovery. QoS compatibility now decides whether data flows (taught in debugging lab)]
+  lesson: ch02_pubsub
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch02_pubsub (solution 10/10 incl. hidden; starter 0/10; BEST_EFFORT and 2 Hz mutants rejected) + backend/tests/e2e_workflow.py"
+
+- original: "Chapter 1: introduction (no companion code) — first node / computation graph"
+  ros1: roscore, rosnode, turtlesim
+  ros2: C++ rclcpp node with a wall-timer heartbeat; live DDS graph introspection
+  changed_apis: [node name passed to the rclcpp::Node constructor, rclcpp::spin]
+  changed_packages: [catkin → ament_cmake]
+  changed_configuration: []
+  changed_behavior: [No roscore; ROS_DOMAIN_ID + ROS_AUTOMATIC_DISCOVERY_RANGE]
+  lesson: ch01_first_node
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch01_first_node (solution 3/3 incl. hidden; starter 0/3)"
+
+- original: "Chapter2/mastering_ros_demo_pkg: demo_msg.msg, demo_msg_publisher/subscriber"
+  ros1: message_generation in a catkin package
+  ros2: rosidl_default_generators in a dedicated ament_cmake interfaces package (MSVC via vs2019_win-64)
+  status: Architecture Designed
+
+- original: "Chapter2/mastering_ros_demo_pkg: demo_srv.srv, demo_service_server/client"
+  ros1: ros::ServiceServer / ServiceClient (blocking call)
+  ros2: create_service / create_client with async call + futures (no blocking inside callbacks)
+  status: Architecture Designed
+
+- original: "Chapter2/mastering_ros_demo_pkg: Demo_action.action, actionlib server/client"
+  ros1: actionlib SimpleActionServer
+  ros2: rclpy.action.ActionServer with goal/cancel callbacks, feedback, result
+  status: Architecture Designed
+
+- original: "Chapter2/mastering_ros_demo_pkg/launch/demo_topic.launch"
+  ros1: roslaunch XML
+  ros2: Python launch file (launch_ros.actions.Node); XML/YAML launch also supported
+  status: Architecture Designed
+
+- original: "Chapter3/mastering_ros_robot_description_pkg: pan_tilt.urdf + view_pan_tilt_urdf.launch"
+  ros1: catkin package, roslaunch with <param name="robot_description" textfile=...>, joint_state_publisher_gui, RViz
+  ros2: ament_cmake description package installing urdf/ + launch/; XML launch running xacro via $(command ...) with type="str";
+        robot_description as a robot_state_publisher PARAMETER (republished on the latched /robot_description topic);
+        joint values from the academy's visible /academy_joint_gui node (joint_state_publisher_gui equivalent)
+  changed_apis: [$(find pkg) → $(find-pkg-share pkg), <param textfile> → <param ... value="$(command 'xacro ...')" type="str"/>, node type= → exec=]
+  changed_packages: [catkin → ament_cmake (project(... NONE), no compiler needed)]
+  changed_configuration: [install(DIRECTORY urdf launch DESTINATION share/${PROJECT_NAME})]
+  changed_behavior: [No global parameter server; TF from robot_state_publisher with KDL (root-link inertia ignored, warned)]
+  lesson: ch03_pan_tilt
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch03_pan_tilt (solution 10/10 incl. hidden; starter fails final; wrong-axis and visual-origin mutants rejected) + backend/tests/e2e_chapter3.py"
+
+- original: "Chapter3/mastering_ros_robot_description_pkg: seven_dof_arm.xacro"
+  ros1: xacro with properties/macros, <transmission> + gazebo tags for gazebo_ros_control
+  ros2: xacro 2.x (in-order by default) with segment macros, include of solid-body inertia macros, mimic finger joint;
+        <transmission>/gazebo tags removed here (replaced by <ros2_control> in Chapter 4)
+  lesson: ch03_seven_dof_arm
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch03_seven_dof_arm (solution 11/11 incl. hidden mimic test; misplaced-joint and missing-mimic mutants rejected)"
+
+- original: "Chapter3/mastering_ros_robot_description_pkg: diff_wheeled_robot.xacro + wheel.urdf.xacro"
+  ros1: wheel macro, libgazebo_ros_diff_drive plugin tag in the URDF
+  ros2: wheel/caster macros following REP 103/105 (base_footprint → base_link at axle height); continuous wheel joints;
+        the Gazebo diff-drive plugin is replaced by ros2_control diff_drive_controller in Chapter 4
+  lesson: ch03_diff_drive
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch03_diff_drive (solution 12/12 incl. ground-contact + wheel-axle hidden tests; unrotated-inertia and sunk-robot mutants rejected)"
+
+- original: "Chapter4/seven_dof_arm_gazebo (arm in Gazebo with ros_control trajectory controller)"
+  ros1: Gazebo Classic + gazebo_ros_control + <transmission> + position_controllers/JointTrajectoryController YAML
+  ros2: Gazebo Harmonic (headless) + ros_gz_sim create + gz_ros2_control GazeboSimSystem + joint_trajectory_controller
+        for arm and gripper; massless world anchor link; C++ node publishing trajectory_msgs/JointTrajectory
+  changed_apis: [<transmission> → <ros2_control> joint interfaces, gazebo_ros_control plugin → gz_ros2_control-system,
+                 spawn_model → ros_gz_sim create, rosparam load → spawner + controllers.yaml]
+  changed_behavior: [mimic finger not supported by gz_ros2_control on Windows → both fingers commanded; position gain 2.0]
+  lesson: ch04_arm_gazebo
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch04_arm_gazebo (solution 7/7 incl. hidden sim-time trajectory test; starter 0/7;
+             one-finger gripper, publish-before-subscribe and ignored-duration mutants rejected; 3 repeat runs)"
+
+- original: "Chapter3/diff_wheeled_robot.xacro libgazebo_ros_diff_drive + Chapter6 diff_wheeled_robot_gazebo bring-up"
+  ros1: Gazebo Classic diff-drive plugin publishing /odom, teleop on /cmd_vel (Twist)
+  ros2: ros2_control diff_drive_controller in Gazebo Harmonic (TwistStamped on ~/cmd_vel), odometry validated against
+        Gazebo ground truth (gz model -p), C++ closed-loop distance controller
+  lesson: ch04_diffbot_gazebo
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch04_diffbot_gazebo (solution 8/8 incl. hidden distance/speed; starter 0/8;
+             wrong wheel_radius, wrong wheel_separation and never-stopping mutants rejected; 3 repeat runs)"
+
+- original: "Chapter5/csim_demo_pkg (CoppeliaSim scene scripts with RosInterface)"
+  ros1: CoppeliaSim RosInterface (simROS) child scripts inside a .ttt scene
+  ros2: CoppeliaSim 4.10 simROS2 Lua add-on in the ROS package (-a), robot imported from URDF with simURDF; /cmd_vel
+        (Twist) in, encoder odometry + TF out; simulator ground truth on /ground_truth
+  lesson: ch05_coppeliasim
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch05_coppeliasim (solution 6/6 and 9/9 incl. hidden arc/twist/wheel-frame tests;
+             starter fails 8/9; wrong-way turn, half wheel separation, base_link on the ground and x-only integration
+             mutants rejected); backend/tests/e2e_chapter5.py; ui-smoke-ch05.mjs"
+
+- original: "Chapter5/webots_demo_pkg (e_puck_manager, webots_ros services)"
+  ros1: webots_ros service-per-device API with a generic controller
+  ros2: C++ extern controller on the Webots C API (the API webots_ros2_driver wraps; webots_ros2 has no Windows build):
+        sim clock, encoders -> joint_states/odom/TF, lidar -> LaserScan (clockwise -> counter-clockwise), command
+        time-out; portable go_to_goal run unchanged in Webots and CoppeliaSim
+  lesson: ch05_webots
+  status: Exercise Validated
+  evidence: "scripts/validate_course.py ch05_webots (solution 7/7, 3/3, 2/2, 15/15 incl. hidden goal-parameter, time-out
+             and twist tests; starter fails 14/15; radius-forgotten odometry, mirrored scan, missing time-out and
+             ignored-goal mutants rejected); e2e_chapter5.py 15/15; ui-smoke-ch05.mjs"
+
+- original: "Chapter6/seven_dof_arm_config, diff_wheeled_robot_gazebo (gmapping, amcl, move_base)"
+  ros1: MoveIt 1 config, gmapping, AMCL, move_base + DWA
+  ros2: MoveIt 2 config (moveit_configs_utils), slam_toolbox, nav2_amcl, Nav2 BT navigator
+  status: Architecture Designed
+
+- original: "Chapter7/seven_dof_arm_test (collision objects, attach/detach, pick/place)"
+  ros1: move_group C++ API, Grasp pipeline, GPD
+  ros2: MoveGroupInterface + PlanningSceneInterface; MTC on Linux only (no win-64 build); geometric grasp generator
+  status: Architecture Designed
+
+- original: "Chapter8/iris_model, px4_ros_ctrl"
+  ros1: MAVROS offboard, RotorS
+  ros2: PX4 uXRCE-DDS + px4_msgs (source build) or mavros (linux-64 only); mock autopilot for native Windows
+  status: Architecture Designed
+
+- original: "Chapter9/Arduino/*.ino, ros_wiring_examples"
+  ros1: rosserial, wiringPi
+  ros2: micro-ROS (agent from source) or serial driver node; simulated MCU device
+  status: Architecture Designed
+
+- original: "Chapter10/cv_bridge_tutorial_pkg, pcl_ros_tutorial, fake_laser_pkg"
+  ros1: cv_bridge, pcl_ros, depthimage_to_laserscan nodelet
+  ros2: cv_bridge, pcl_conversions/pcl_ros, depthimage_to_laserscan component (all win-64); usb_cam replaced
+  status: Architecture Designed
+
+- original: "Chapter 11: Remo differential-drive robot (external project)"
+  ros1: hardware_interface::RobotHW, rosserial Teensy, Navigation Stack
+  ros2: ros2_control SystemInterface + diff_drive_controller, robot_localization, Nav2
+  status: Architecture Designed
+
+- original: "Chapter12/plugin_calculator, nodelet_hello_world, gazebo_basic_world_plugin"
+  ros1: pluginlib, nodelet, Gazebo Classic WorldPlugin
+  ros2: pluginlib, rclcpp_components composable nodes, gz-sim System plugin
+  status: Architecture Designed
+
+- original: "Chapter13/my_controller, rviz_teleop_commander"
+  ros1: controller_interface::Controller<PositionJointInterface>, RViz Qt panel
+  ros2: controller_interface::ControllerInterface lifecycle, rviz_common::Panel
+  status: Architecture Designed
+
+- original: "Chapter14/ros_matlab_test"
+  ros1: MATLAB ROS Toolbox (ROS 1), Simulink ROS blocks
+  ros2: ROS Toolbox ROS 2 API (optional, licensed) + Python control alternative
+  status: Architecture Designed
+
+- original: "Chapter15/abb_irb6640_moveit_plugins, ikfast_demo"
+  ros1: ROS-Industrial abb/universal_robot, IKFast via OpenRAVE
+  ros2: Universal_Robots_ROS2_Driver (win-64), ported IRB 6640 URDF + mock_components, MoveIt 2 IKFast plugin
+  status: Architecture Designed
+
+- original: "Chapter 16: troubleshooting & best practices (no companion code)"
+  ros1: roswtf, rqt, rosbag
+  ros2: ros2 doctor, QoS events, rosbag2, lifecycle; broken-project labs graded by behaviour
+  status: Architecture Designed

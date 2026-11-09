@@ -1,0 +1,32 @@
+number: 5
+title: Executors, Callback Groups and Concurrency in rclcpp
+summary: 'How ROS 2 runs your callbacks: executors, callback groups, threads, and moving data between real-time
+  and non-real-time threads without locks.'
+status: planned
+runtime: windows
+competencies:
+- concurrency
+- rt_cpp
+readings:
+- source: mr2
+  chapters: '3'
+- source: lkp
+  chapters: 12–13
+  note: locking concepts, memory barriers, false sharing
+- source: ccia
+  chapters: 2–5, 7
+  note: threads, synchronisation, memory model, lock-free
+- source: docs
+  note: 'ROS 2 docs: About executors, Using callback groups; CppCon 2021 Doumler talk'
+labs:
+- Reproduce and fix a deadlock (sync service call inside a callback)
+- MultiThreadedExecutor with mutually exclusive vs reentrant groups, observed on a live timeline
+- Lock-free SPSC hand-off with realtime_tools::RealtimeBuffer, graded by data-race tests
+lessons: []
+topics:
+- SingleThreaded/MultiThreaded executors
+- callback groups
+- std::atomic & memory order
+- RealtimeBuffer
+- priority inversion
+final_project: A multi-threaded node whose control callback never blocks on I/O.

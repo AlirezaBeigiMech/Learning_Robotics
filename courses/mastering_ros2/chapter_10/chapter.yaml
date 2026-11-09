@@ -1,0 +1,28 @@
+number: 10
+title: Processes, Scheduling, Affinity and cgroups
+summary: How Linux schedules threads (CFS/EEVDF, SCHED_FIFO/RR/DEADLINE), CPU affinity and cgroup v2 resource control.
+status: planned
+runtime: linux
+competencies:
+- linux
+- rt_cpp
+readings:
+- source: lkp
+  chapters: 6, 10–11
+- source: sp
+  chapters: 3, 6
+  note: scheduler concepts, 6.9 tuning
+- source: docs
+  note: 'kernel docs: cgroup-v2'
+labs:
+- Interactive scheduler model (labelled as a model) next to real chrt/taskset experiments
+- Put a ROS 2 stack in a cpuset cgroup and watch CPU usage per core live
+- Priority inversion reproduced, then fixed with priority-inheritance mutexes
+lessons: []
+topics:
+- sched policies
+- chrt
+- taskset
+- cgroup v2 cpuset/cpu
+- PI mutexes
+final_project: A cgroup layout that isolates the control stack from the rest of the system.

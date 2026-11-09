@@ -1,0 +1,86 @@
+id: ch01_first_node
+title: Your First ROS 2 Workspace and Node
+description: Build a colcon workspace with one C++ (ament_cmake) package and write an rclcpp node that joins the ROS 2 graph
+  and emits a timer-driven heartbeat.
+book_reference:
+  chapter: 1
+  title: Introduction to ROS
+  sections:
+  - Understanding the ROS filesystem level
+  - Understanding the ROS computation graph level
+difficulty: beginner
+estimated_minutes: 30
+objectives:
+- Describe the ROS 2 computation graph and how DDS discovery replaces the ROS 1 master.
+- Explain what a workspace, a package and an executable are in ROS 2.
+- Write an rclcpp node with a wall timer and keep it alive with an executor.
+- Build a C++ package with colcon (ament_cmake) and run it with ros2 run.
+prerequisites: []
+ros_dependencies:
+- rclcpp
+skills:
+- ros2.graph.nodes
+- ros2.workspace.colcon
+- ros2.cpp.rclcpp_node
+- ros2.timers
+lab_tabs:
+- graph
+- terminal
+- tests
+workspace:
+  package: first_node_lab
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: The ROS 2 graph without a master
+  kind: read
+  content: content/01-graph.md
+  completion:
+    type: manual
+- id: workspace
+  title: Workspaces, packages and colcon
+  kind: read
+  content: content/02-workspace.md
+  completion:
+    type: manual
+- id: write_node
+  title: Write hello_node
+  kind: code
+  content: content/03-node.md
+  focus_file: first_node_lab/src/hello_node.cpp
+  hints:
+  - A node's name is the string passed to the rclcpp::Node constructor. A timer makes it do something periodically.
+  - Without rclcpp::spin(node), main() returns immediately and the process exits before any timer fires.
+  - Node("hello_node") in the constructor's initialiser list, and timer_ = create_wall_timer(500ms, [this]() {heartbeat();});
+  - 'heartbeat(): ++count_; RCLCPP_INFO(get_logger(), "Hello ROS 2 #%d", count_);  and in main: rclcpp::spin(node);'
+  completion:
+    type: checkpoint
+    checkpoint: node
+- id: run_node
+  title: Run it and see it in the graph
+  kind: run
+  content: content/04-run.md
+  completion:
+    type: graph
+    node: /hello_node
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/05-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+checkpoints:
+- id: node
+  title: Node behaviour
+  tests:
+  - test_node.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_node.py
+  - test_hidden.py
+  final: true
+completion:
+  checkpoint: final

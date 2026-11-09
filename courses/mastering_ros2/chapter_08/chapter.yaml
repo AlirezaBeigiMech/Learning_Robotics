@@ -1,0 +1,23 @@
+number: 8
+title: Components, Intra-Process Communication and Zero-Copy
+summary: Composable nodes, intra-process messaging and loaned messages; measure the latency you save.
+status: planned
+runtime: windows
+competencies:
+- concurrency
+- dds
+readings:
+- source: mr2
+  chapters: 3, 16
+- source: docs
+  note: 'ROS 2 docs: Composition, Intra-process, Zero-copy loaned messages'
+labs:
+- 'Same pipeline as separate processes vs one container: measured latency histogram'
+- Loaned messages with Cyclone/iceoryx shared memory (Linux runtime)
+lessons: []
+topics:
+- rclcpp_components
+- intra-process
+- loaned messages
+- unique_ptr publishing
+final_project: A component pipeline with a measured latency report.

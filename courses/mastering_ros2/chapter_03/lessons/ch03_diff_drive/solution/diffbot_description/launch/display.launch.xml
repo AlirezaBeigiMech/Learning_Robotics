@@ -1,0 +1,16 @@
+<!--
+  Publish the robot model: robot_state_publisher turns the URDF + /joint_states into TF.
+
+  $(command 'xacro ...') runs xacro at launch time (plain URDF passes through unchanged), and
+  $(find-pkg-share ...) finds the INSTALLED copy of this package, so build after every edit.
+  type="str" keeps the generated XML a plain string instead of letting ROS parse it as YAML.
+
+  Joint values come from whoever publishes /joint_states: in the academy, the Robot tab's
+  "Publish /joint_states" sliders (node /academy_joint_gui), standing in for joint_state_publisher_gui.
+-->
+<launch>
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" type="str"
+           value="$(command 'xacro $(find-pkg-share diffbot_description)/urdf/diffbot.urdf.xacro')"/>
+  </node>
+</launch>

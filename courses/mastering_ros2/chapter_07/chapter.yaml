@@ -1,0 +1,27 @@
+number: 7
+title: Real-Time-Safe ros2_control Controllers
+summary: 'Write a controller whose update() is real-time safe: no allocation, no locks, no I/O; parameters and commands
+  handed over through real-time buffers.'
+status: planned
+runtime: windows
+competencies:
+- ros2_control
+- rt_cpp
+readings:
+- source: mr2
+  chapters: 6, 16
+- source: docs
+  note: 'control.ros.org: Writing a new controller; realtime_tools'
+labs:
+- PID joint controller with live tracking-error chart
+- 'Allocation detector in the grader: update() that allocates fails'
+- Balance controller (LQR, wheeled inverted pendulum) for the wheel-legged robot in Gazebo
+- 'Chained controllers: leg-height/roll controller feeding the balance controller'
+lessons: []
+topics:
+- ControllerInterface
+- controller lifecycle
+- RealtimePublisher
+- LQR balance
+- chained controllers
+final_project: The wheel-legged robot balances and drives in simulation; graded on stability and RT safety.

@@ -1,0 +1,22 @@
+number: 27
+title: Simulating Robots Using ROS 2, CoppeliaSim and Webots
+book_chapter:
+  number: 5
+  title: Simulating Robots Using ROS, CoppeliaSim, and Webots
+summary: 'One controller, several simulators: simulator adapters and portable ROS 2 interfaces.'
+status: available
+runtime: windows
+competencies: []
+readings:
+- source: mr2
+  chapters: '5'
+labs:
+- One controller in CoppeliaSim and Webots
+lessons:
+- ch05_coppeliasim
+- ch05_webots
+topics:
+- simROS2
+- Webots controller API
+- simulator adapters
+final_project: Compare one controller across simulation engines.

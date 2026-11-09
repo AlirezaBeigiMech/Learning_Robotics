@@ -1,0 +1,17 @@
+.pixi/
+node_modules/
+frontend/.next/
+frontend/out/
+data/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.pdf
+data-e2e/
+# colcon / build outputs
+log/
+build/
+install/
+*.tsbuildinfo
+# book PDFs and local references are never committed (see docs/reading/README.md)
+docs/reading/*.pdf

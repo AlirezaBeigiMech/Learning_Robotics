@@ -1,0 +1,107 @@
+id: ch05_coppeliasim
+title: Bridge CoppeliaSim to ROS 2
+description: Import the robot into CoppeliaSim from its URDF and write the simROS2 bridge that turns /cmd_vel into wheel
+  speeds and wheel encoders into odometry and TF, checked against the simulator's ground truth.
+book_reference:
+  chapter: 5
+  title: Simulating Robots Using ROS, CoppeliaSim, and Webots
+  sections:
+  - Setting up CoppeliaSim with ROS
+  - Understanding the RosInterface plugin
+  - Interacting with CoppeliaSim using ROS
+difficulty: intermediate
+estimated_minutes: 75
+objectives:
+- Explain what a simulator adapter does and why the portable /cmd_vel → /odom contract matters.
+- Run CoppeliaSim headless with add-on scripts, the URDF importer and the simROS2 plugin.
+- Use simROS2 publishers, subscriptions and transforms from a Lua script.
+- Implement differential-drive inverse and forward kinematics and dead-reckoning odometry.
+- Validate odometry against the simulator's ground truth and explain the remaining error.
+prerequisites:
+- ch04_diffbot_gazebo
+ros_dependencies:
+- robot_state_publisher
+- xacro
+skills:
+- sim.coppeliasim
+- sim.adapter_contract
+- odometry.dead_reckoning
+- kinematics.differential_drive
+requires:
+- coppeliasim
+workspace:
+  package: diffbot_coppelia
+checkpoints:
+- id: bridge
+  title: Drive, turn and report odometry
+  tests:
+  - test_bridge.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_bridge.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- graph
+- topics
+- tf
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: One robot, many simulators
+  kind: read
+  content: content/01-concept.md
+  completion:
+    type: manual
+- id: start
+  title: Start CoppeliaSim
+  kind: run
+  content: content/02-start.md
+  focus_file: diffbot_coppelia/launch/sim.launch.xml
+  completion:
+    type: manual
+- id: command
+  title: From /cmd_vel to the wheels
+  kind: code
+  content: content/03-command.md
+  focus_file: diffbot_coppelia/coppeliasim/diffbot_bridge.lua
+  hints:
+  - 'simROS2 hands your callback the message as a Lua table: msg.linear.x, msg.angular.z.'
+  - 'Rim speed of each wheel: v − w·L/2 (left) and v + w·L/2 (right). Divide by the wheel radius to get rad/s.'
+  - 'cmdSub = simROS2.createSubscription(''/cmd_vel'', ''geometry_msgs/msg/Twist'', function(msg) cmd.v, cmd.w = msg.linear.x,
+    msg.angular.z end)'
+  - 'sim.setJointTargetVelocity(left, (cmd.v - cmd.w * WHEEL_SEPARATION / 2) / WHEEL_RADIUS) and the same with + for right.'
+  completion:
+    type: graph
+    node: /sim_ros2_interface
+    subscribes: /cmd_vel
+- id: odometry
+  title: Odometry from the wheels
+  kind: code
+  content: content/04-odometry.md
+  focus_file: diffbot_coppelia/coppeliasim/diffbot_bridge.lua
+  hints:
+  - 'Each step you know how far each wheel rolled (dl, dr). The centre moved their average; the heading changed by their
+    difference divided by the wheel separation.'
+  - 'Mid-point integration: x += ds·cos(yaw + dyaw/2), y += ds·sin(yaw + dyaw/2), then yaw = wrap(yaw + dyaw).'
+  - 'A rotation by yaw about z is the quaternion {x = 0, y = 0, z = math.sin(yaw / 2), w = math.cos(yaw / 2)}.'
+  - 'simROS2.publish(odomPub, {header = {stamp = stamp, frame_id = ''odom''}, child_frame_id = ''base_link'', pose = {pose
+    = {position = {x = odom.x, y = odom.y, z = 0}, orientation = q}}, twist = {twist = {linear = {x = odom.v, y = 0, z =
+    0}, angular = {x = 0, y = 0, z = odom.w}}}})'
+  completion:
+    type: checkpoint
+    checkpoint: bridge
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/05-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!-- A two-axis pan-tilt unit, e.g. for a camera. Units: metres, radians, kilograms. -->
+<robot name="pan_tilt">
+
+  <material name="dark"><color rgba="0.25 0.25 0.28 1"/></material>
+  <material name="blue"><color rgba="0.2 0.45 0.85 1"/></material>
+  <material name="orange"><color rgba="0.95 0.55 0.15 1"/></material>
+
+  <!-- base_link: the root of the tree. A flat disc lying on the ground. -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.15" length="0.02"/></geometry>
+      <material name="dark"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.15" length="0.02"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="0.00565833" ixy="0" ixz="0" iyy="0.00565833" iyz="0" izz="0.01125"/>
+    </inertial>
+  </link>
+
+  <!-- pan_joint: rotates everything above it about the vertical (z) axis. -->
+  <joint name="pan_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="pan_link"/>
+    <origin xyz="0 0 0.02" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.6" upper="2.6" effort="5" velocity="1.5"/>
+  </joint>
+
+  <!-- TODO 1: pan_link — a blue cylinder, radius 0.03 m, length 0.30 m, standing on the joint
+       (so its centre is 0.15 m above the joint frame). Give it a <visual>, a matching <collision>,
+       and an <inertial> with mass 0.4 kg and the inertia values from the lesson's table. -->
+
+
+  <!-- TODO 2: tilt_joint — revolute, pan_link -> tilt_link, at the top of the pan column (0.30 m up),
+       rotating about the y axis, limits -1.2 .. 1.2 rad, effort 5, velocity 1.5. -->
+
+
+  <!-- TODO 3: tilt_link — an orange box 0.25 x 0.08 x 0.06 m resting on the joint (centre 0.03 m up),
+       with collision and inertial (mass 0.3 kg). -->
+
+
+  <!-- TODO 4: camera_link — a frame with NO geometry, attached to tilt_link by a fixed joint named
+       camera_joint, at the centre of the box's front face: x = 0.125, z = 0.03. -->
+
+</robot>

@@ -1,0 +1,25 @@
+number: 21
+title: EtherCAT for Robot Control
+summary: EtherCAT principles (processing on the fly, distributed clocks) and a ros2_control integration with ethercat_driver_ros2.
+status: planned
+runtime: linux_rt_host
+competencies:
+- fieldbus
+- ros2_control
+- rt_cpp
+readings:
+- source: docs
+  note: ETG brochure 'EtherCAT – the Ethernet Fieldbus'; IgH EtherCAT Master / SOEM; ethercat_driver_ros2
+labs:
+- 'Frame walkthrough widget (labelled as a model): datagrams through a slave chain'
+- Build a minimal software EtherCAT slave on a virtual Ethernet link (no distributed clocks)
+- 'Real SOEM/IgH master against it: bus scan, PDO mapping, cyclic exchange from ros2_control'
+- Cycle-time measurement on the bare-metal host with a dedicated NIC
+lessons: []
+topics:
+- EtherCAT frames
+- PDO/SDO
+- distributed clocks
+- IgH master
+- ethercat_driver_ros2
+final_project: An EtherCAT I/O device (software slave) running inside a 1 kHz ros2_control loop.

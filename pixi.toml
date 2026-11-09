@@ -1,0 +1,58 @@
+[workspace]
+name = "mastering-ros2-academy"
+version = "0.1.0"
+description = "Interactive ROS 2 Jazzy robotics programming academy (native Windows)"
+channels = ["https://prefix.dev/robostack-jazzy", "conda-forge"]
+platforms = ["win-64"]
+
+[dependencies]
+python = "3.12.*"
+# ROS 2 Jazzy (RoboStack build for native Windows)
+ros-jazzy-ros-base = "*"
+ros-jazzy-launch-testing-ros = "*"
+# Chapter 3: robot modeling
+ros-jazzy-xacro = "*"
+ros-jazzy-robot-state-publisher = "*"
+ros-jazzy-joint-state-publisher = "*"
+ros-jazzy-urdfdom-py = "*"
+ros-jazzy-tf2-ros-py = "*"
+# Chapter 4: simulation (Gazebo Harmonic + ros2_control)
+ros-jazzy-ros-gz-sim = "*"
+ros-jazzy-ros-gz-bridge = "*"
+ros-jazzy-gz-ros2-control = "*"
+ros-jazzy-controller-manager = "*"
+ros-jazzy-joint-state-broadcaster = "*"
+ros-jazzy-joint-trajectory-controller = "*"
+ros-jazzy-diff-drive-controller = "*"
+ros-jazzy-example-interfaces = "*"  # CoppeliaSim simROS2 plugin links against it
+ros-jazzy-image-transport = "*"     # idem
+numpy = "*"
+colcon-common-extensions = "*"
+# C/C++ toolchain used by colcon for ament_cmake packages and custom interfaces
+vs2019_win-64 = "*"
+cmake = "*"
+ninja = "*"
+pkg-config = "*"
+# Academy backend
+fastapi = "*"
+uvicorn = "*"
+sqlalchemy = "2.*"
+pydantic = "2.*"
+pyyaml = "*"
+pywinpty = "*"
+pywin32 = "*"
+python-multipart = "*"
+websockets = "*"
+# Tests and frontend build
+pytest = "8.*"
+httpx = "*"
+nodejs = "22.*"
+
+[tasks]
+frontend-install = { cmd = "npm install", cwd = "frontend" }
+frontend-build = { cmd = "npm run build", cwd = "frontend", depends-on = ["frontend-install"] }
+backend = { cmd = "python -m academy", cwd = "backend" }
+start = { depends-on = ["frontend-build", "backend"], description = "Build the web UI and start the academy on http://localhost:8000" }
+dev-frontend = { cmd = "npm run dev", cwd = "frontend" }
+test-backend = { cmd = "python -m pytest tests -q", cwd = "backend" }
+test-course = { cmd = "python scripts/validate_course.py", description = "Run every lesson's reference solution through the real grader" }

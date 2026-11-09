@@ -1,0 +1,23 @@
+number: 24
+title: Provisioning a Robot Host with Ansible
+summary: Turn a fresh Ubuntu install into your tuned RT robot host, reproducibly.
+status: planned
+runtime: linux
+competencies:
+- infra
+- linux
+readings:
+- source: docs
+  note: Ansible getting started + playbook guide
+labs:
+- 'Playbook: RT kernel, GRUB parameters, netplan, sysctl, IRQ affinity, users'
+- 'Idempotency check: second run must change nothing (graded)'
+- Apply to a fresh container/VM target and verify with your Ch 14 checks
+lessons: []
+topics:
+- inventory
+- roles
+- idempotency
+- templates
+- handlers
+final_project: One command that rebuilds the robot host from scratch.

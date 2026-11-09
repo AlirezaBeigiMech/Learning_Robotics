@@ -1,0 +1,41 @@
+{
+  "name": "ros2-academy-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "postinstall": "node scripts/copy-monaco.mjs",
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "@xyflow/react": "^12.4.4",
+    "clsx": "^2.1.1",
+    "js-yaml": "^4.1.0",
+    "lucide-react": "^0.475.0",
+    "monaco-editor": "^0.52.2",
+    "next": "^15.3.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "react-resizable-panels": "^2.1.7",
+    "remark-gfm": "^4.0.1",
+    "three": "^0.169.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/three": "^0.169.0",
+    "autoprefixer": "^10.4.20",
+    "playwright-core": "^1.64.0",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  }
+}

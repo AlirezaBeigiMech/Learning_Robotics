@@ -1,0 +1,125 @@
+id: ch03_seven_dof_arm
+title: The Seven-DOF Arm in Xacro
+description: Model the course's seven-DOF manipulator with xacro properties, macros and includes, including physically
+  valid inertia and a mimic-jointed gripper.
+book_reference:
+  chapter: 3
+  title: Working with ROS for 3D Modeling
+  sections:
+  - Understanding robot modeling using xacro
+  - Converting xacro to URDF
+  - Creating the robot description for a seven-DOF robot manipulator
+  - Explaining the xacro model of the seven-DOF arm
+difficulty: intermediate
+estimated_minutes: 90
+objectives:
+- Use xacro properties, math expressions, macros, block parameters and includes.
+- Model a serial manipulator as a chain of revolute joints with correct axes and limits.
+- Compute solid-body inertia and explain why simulators need it.
+- Use a mimic joint for a parallel gripper.
+- Verify forward kinematics through the live TF tree.
+prerequisites:
+- ch03_pan_tilt
+ros_dependencies:
+- robot_state_publisher
+- xacro
+skills:
+- xacro.macros
+- xacro.properties
+- urdf.serial_chain
+- urdf.mimic
+- urdf.inertia
+- kinematics.forward
+workspace:
+  package: arm_description
+checkpoints:
+- id: model
+  title: Arm model matches the specification
+  tests:
+  - test_model.py
+- id: tf
+  title: Live TF from robot_state_publisher
+  tests:
+  - test_tf.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_model.py
+  - test_tf.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- tf
+- graph
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Why xacro
+  kind: read
+  content: content/01-xacro.md
+  completion:
+    type: manual
+- id: inertia
+  title: Mass and inertia
+  kind: read
+  content: content/02-inertia.md
+  completion:
+    type: manual
+- id: write_arm
+  title: Write the arm
+  kind: code
+  content: content/03-arm.md
+  focus_file: arm_description/urdf/seven_dof_arm.urdf.xacro
+  hints:
+  - 'box_segment is cylinder_segment with a box: change the geometry, the visual/collision origin (z/2) and the
+    inertial macro.'
+  - 'Each segment''s joint_z is the length of the PREVIOUS link: the new joint sits on top of it.'
+  - <xacro:box_segment name="shoulder_pitch" parent="shoulder_pan_link" joint_z="0.08" axis="0 1 0" lower="-1.2"
+    upper="1.9" x="0.04" y="0.04" z="0.14" m="0.4" color="grey"/>
+  - Inside the finger macro use <xacro:if value="${side == 'right'}"><mimic joint="left_finger_joint"/></xacro:if>,
+    and origin xyz="0 ${y_sign * 0.01} 0.02".
+  completion:
+    type: checkpoint
+    checkpoint: model
+- id: preview
+  title: Pose the arm
+  kind: observe
+  content: content/04-pose.md
+  completion:
+    type: manual
+- id: launch
+  title: Publish and move it
+  kind: run
+  content: content/05-launch.md
+  hints:
+  - Build, then Run ▸ ros2 launch arm_description display.launch.xml.
+  - Robot tab → Live → enable Publish /joint_states.
+  - 'The gripper''s right finger has no slider of its own: it is a mimic joint.'
+  - Verify while publishing.
+  completion:
+    type: tf_frames
+    frames:
+    - shoulder_pan_link
+    - gripper_roll_link
+    - grasp_frame
+    - right_finger_link
+- id: tf_check
+  title: Check forward kinematics
+  kind: code
+  content: content/06-fk.md
+  completion:
+    type: checkpoint
+    checkpoint: tf
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/07-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

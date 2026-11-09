@@ -1,0 +1,30 @@
+number: 26
+title: 'Capstone: The Virtual Wheel-Legged Robot, End to End'
+summary: 'Put it all together: the wheel-legged robot balancing at 1 kHz on a tuned bare-metal PREEMPT_RT host,
+  emulated motor/IMU firmware on CAN, an EtherCAT I/O node, multi-host DDS to a base station, provisioned by Ansible
+  and shipped in containers.'
+status: planned
+runtime: linux_rt_host
+competencies:
+- rt_cpp
+- concurrency
+- ros2_control
+- fieldbus
+- dds
+- linux
+- infra
+- x86_perf
+readings:
+- source: docs
+  note: everything in docs/reading
+labs:
+- Requirements given as an industrial spec; you design, build, tune and defend it
+- Graded on balance under declared CPU/network load, jitter budget, message loss across hosts, recovery from injected
+  faults (CAN node dropout, NIC loss, overrun), reproducibility
+lessons: []
+topics:
+- system integration
+- latency budgets
+- fault injection
+- reporting
+final_project: 'The robot plus a written latency and reliability report: your main portfolio piece.'

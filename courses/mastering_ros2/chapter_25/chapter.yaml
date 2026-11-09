@@ -1,0 +1,25 @@
+number: 25
+title: Testing, CI/CD and Kubernetes Basics for Robotics
+summary: Automated tests and CI for ROS 2 packages, release pipelines, and where Kubernetes fits (and where it does
+  not) in robotics.
+status: planned
+runtime: linux
+competencies:
+- infra
+readings:
+- source: mr2
+  chapters: '13'
+- source: docs
+  note: Kubernetes basics tutorial
+labs:
+- gtest/launch_testing suite for your Ch 6–7 packages
+- CI pipeline that builds, tests and publishes the container image
+- Deploy the non-RT parts (dashboards, logging) to a local Kubernetes cluster
+lessons: []
+topics:
+- gtest
+- launch_testing
+- CI pipelines
+- image publishing
+- k8s pods/deployments
+final_project: A pipeline that blocks a merge that breaks real-time safety tests.

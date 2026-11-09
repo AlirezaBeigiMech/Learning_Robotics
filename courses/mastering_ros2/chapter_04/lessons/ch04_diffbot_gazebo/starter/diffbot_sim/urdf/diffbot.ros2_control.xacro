@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- TODO 1: a <ros2_control name="GazeboSimSystem" type="system"> block:
+         * <hardware> with <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+         * one <joint> per wheel (left_wheel_joint, right_wheel_joint), each with
+             a VELOCITY command interface  and  POSITION + VELOCITY state interfaces. -->
+
+
+  <!-- TODO 2: a <gazebo> element containing the Gazebo system plugin that runs the controller_manager:
+         filename="gz_ros2_control-system"  name="gz_ros2_control::GazeboSimROS2ControlPlugin"
+         with a <parameters> child pointing at  $(find diffbot_sim)/config/controllers.yaml -->
+
+</robot>

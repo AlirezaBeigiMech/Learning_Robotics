@@ -1,0 +1,25 @@
+number: 4
+title: Simulating Robots Using ROS 2 and Gazebo
+book_chapter:
+  number: 4
+  title: Simulating Robots Using ROS and Gazebo
+summary: Bring the models to life in Gazebo Harmonic with ros_gz and ros2_control.
+status: available
+runtime: windows
+competencies:
+- ros2_control
+readings:
+- source: mr2
+  chapters: 5–6
+labs:
+- Gazebo + gz_ros2_control diff-drive and arm
+- Controllers tab (live list_controllers)
+lessons:
+- ch04_diffbot_gazebo
+- ch04_arm_gazebo
+topics:
+- gz-sim
+- ros_gz_bridge
+- gz_ros2_control
+- controllers
+final_project: Controllable arm and mobile robot simulations.

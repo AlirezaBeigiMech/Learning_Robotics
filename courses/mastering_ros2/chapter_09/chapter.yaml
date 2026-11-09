@@ -1,0 +1,23 @@
+number: 9
+title: 'The Linux Kernel: Configure, Build, Boot'
+summary: Configure and build a 6.x kernel, install it, boot it through GRUB and write your first module.
+status: planned
+runtime: linux
+competencies:
+- linux
+readings:
+- source: lkp
+  chapters: 1–5
+- source: docs
+  note: GNU GRUB manual; kernel-parameters
+labs:
+- Guided menuconfig with a live diff of .config
+- Build and boot your kernel (Linux runtime; WSL2 custom-kernel boot supported)
+- Hello-world module with parameters; dmesg streamed into the terminal
+lessons: []
+topics:
+- Kconfig
+- kernel build
+- GRUB_CMDLINE_LINUX
+- loadable modules
+final_project: Boot a kernel you configured, with a custom command line, and load your module.

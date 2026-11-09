@@ -1,0 +1,26 @@
+number: 6
+title: Writing a ros2_control Hardware Interface
+summary: The SystemInterface lifecycle, state/command interfaces and the read → update → write loop for the wheel-legged
+  robot's six joints and IMU, first against Gazebo, then over a virtual CAN bus.
+status: planned
+runtime: windows
+competencies:
+- ros2_control
+readings:
+- source: mr2
+  chapters: 6, 12
+- source: docs
+  note: 'control.ros.org: Writing a Hardware Component; ros2_control_demos'
+labs:
+- SystemInterface for one simulated motor + encoder (plugin exported via pluginlib)
+- 'Scale up to the wheel-legged robot: 4 leg joints, 2 wheels, IMU state interfaces'
+- 'Lifecycle transitions shown live: unconfigured → inactive → active'
+- 'Fault injection: encoder dropout, command saturation, graded behaviourally'
+lessons: []
+topics:
+- SystemInterface
+- hardware lifecycle
+- command/state interfaces
+- pluginlib
+- URDF <ros2_control>
+final_project: A hardware interface that passes the course's conformance tests.

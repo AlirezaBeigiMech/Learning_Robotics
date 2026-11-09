@@ -1,0 +1,89 @@
+id: mastering_ros2
+title: Real-Time Robotics Systems with ROS 2
+ros_distro: jazzy
+description: 'From your first ROS 2 node to a deterministic, multi-host, fieldbus-connected robot cell: ROS 2 and
+  ros2_control, Linux internals, PREEMPT_RT, DDS networking, industrial fieldbuses and deployment. Every lab runs
+  real code; latency numbers come from real measurements.'
+sources:
+  mr2: Mastering ROS 2 for Robotics Programming, 4th ed. (Joseph & Cacace, 2025)
+  lkp: Linux Kernel Programming, 2nd ed. (Billimoria, 2024)
+  sp: Systems Performance, 2nd ed. (Gregg, 2020)
+  ccia: C++ Concurrency in Action, 2nd ed. (Williams, 2019) — optional
+  drepper: What Every Programmer Should Know About Memory (Drepper) — docs/reading
+  odva: ODVA EtherNet/IP Technology Overview + CIP brochure — docs/reading
+  rm0090: STM32F4 Reference Manual RM0090 (ST, free) — bxCAN, timers, ADC chapters
+  emulica: Emulica MCU emulator (Embedded_claw/replica-server)
+  docs: Free official documentation — links in docs/reading/README.md
+competencies:
+- id: rt_cpp
+  title: R1 · Real-time C++ on PREEMPT_RT
+- id: concurrency
+  title: R2 · Concurrency & distributed systems
+- id: ros2_control
+  title: R3 · ros2_control & hardware interfaces
+- id: fieldbus
+  title: R4 · Industrial fieldbuses
+- id: dds
+  title: R5 · Multi-host ROS 2 / DDS debugging
+- id: linux
+  title: R6 · Linux systems
+- id: infra
+  title: R7 · Provisioning & deployment
+- id: x86_perf
+  title: R8 · x86 real-time benchmarking
+sections:
+- id: foundations
+  title: I — ROS 2 Foundations
+  chapters:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+- id: control
+  title: II — ros2_control and Real-Time-Ready ROS 2
+  chapters:
+  - 6
+  - 7
+  - 8
+- id: linux
+  title: III — Linux Systems for Robotics
+  chapters:
+  - 9
+  - 10
+  - 11
+  - 12
+- id: realtime
+  title: IV — Hard Real-Time
+  chapters:
+  - 13
+  - 14
+  - 15
+  - 16
+- id: dds
+  title: V — Distributed ROS 2 and DDS
+  chapters:
+  - 17
+  - 18
+- id: fieldbus
+  title: VI — Embedded Firmware and Industrial Communication
+  chapters:
+  - 19
+  - 20
+  - 21
+  - 22
+- id: deploy
+  title: VII — Deployment and Infrastructure
+  chapters:
+  - 23
+  - 24
+  - 25
+- id: capstone
+  title: VIII — Capstone
+  chapters:
+  - 26
+- id: electives
+  title: Electives
+  chapters:
+  - 27
+  - 28

@@ -1,0 +1,26 @@
+<!--
+  Simulation bring-up:
+    1. Gazebo (gz sim) runs HEADLESS (-s) and starts immediately (-r): physics only, no GUI window.
+       The academy's Robot tab draws the simulated robot from ROS TF instead.
+    2. robot_state_publisher publishes the model on /robot_description (and TF).
+    3. ros_gz_sim `create` reads /robot_description and spawns the robot into Gazebo. The
+       gz_ros2_control plugin in the model then starts a controller_manager inside the simulation.
+    4. ros_gz_bridge forwards Gazebo's clock to /clock, so every node runs on SIMULATION time.
+    5. spawner loads and activates the controllers listed in config/controllers.yaml.
+-->
+<launch>
+  <set_parameter name="use_sim_time" value="true"/>
+
+  <executable cmd="gz sim -s -r $(find-pkg-share diffbot_sim)/worlds/empty.sdf" output="screen" shell="true"/>
+
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" type="str"
+           value="$(command 'xacro $(find-pkg-share diffbot_sim)/urdf/diffbot.urdf.xacro')"/>
+  </node>
+
+  <node pkg="ros_gz_sim" exec="create" args="-topic robot_description -name diffbot -z 0.01" output="screen"/>
+
+  <node pkg="ros_gz_bridge" exec="parameter_bridge" args="/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock" output="screen"/>
+
+  <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster diff_drive_controller" output="screen"/>
+</launch>

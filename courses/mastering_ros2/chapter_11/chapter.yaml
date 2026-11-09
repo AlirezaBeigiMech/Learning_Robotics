@@ -1,0 +1,26 @@
+number: 11
+title: 'Linux Networking for Robots: netplan, Multi-NIC, sysctl'
+summary: Configure robot and office networks on separate NICs, tune socket buffers and understand where packets
+  get dropped.
+status: planned
+runtime: linux
+competencies:
+- linux
+- dds
+readings:
+- source: sp
+  chapters: '10'
+- source: docs
+  note: netplan docs; Red Hat network tuning
+labs:
+- Two-NIC netplan configuration in a container network, validated by the grader
+- sysctl tuning (rmem/wmem, netdev backlog) with before/after drop counters
+- ip/ss/ethtool/nstat observability drills
+lessons: []
+topics:
+- netplan
+- routing
+- multicast
+- sysctl net.*
+- NIC offloads
+final_project: A robot host network configuration that survives a reboot and a NIC swap.

@@ -1,0 +1,114 @@
+id: ch04_arm_gazebo
+title: Command the Seven-DOF Arm in Gazebo
+description: Simulate the seven-DOF arm with position-controlled joints, configure joint trajectory controllers,
+  and write a C++ node that moves the arm along a timed trajectory.
+book_reference:
+  chapter: 4
+  title: Simulating Robots Using ROS and Gazebo
+  sections:
+  - Simulating the robotic arm using Gazebo and ROS
+  - Adding the gazebo_ros_control plugin
+  - Moving the robot joints using ROS controllers in Gazebo
+difficulty: intermediate
+estimated_minutes: 75
+objectives:
+- Anchor a manipulator to the world in simulation.
+- Declare position command interfaces for a serial arm and a gripper.
+- Configure joint_trajectory_controller instances for an arm and a gripper.
+- Send timed joint trajectories from C++ and verify the simulated motion.
+prerequisites:
+- ch03_seven_dof_arm
+- ch04_diffbot_gazebo
+ros_dependencies:
+- rclcpp
+- trajectory_msgs
+- ros_gz_sim
+- gz_ros2_control
+- joint_trajectory_controller
+skills:
+- sim.gazebo
+- ros2_control.joint_trajectory_controller
+- ros2.cpp.trajectories
+workspace:
+  package: arm_sim
+checkpoints:
+- id: sim
+  title: Arm & gripper controllers in Gazebo
+  tests:
+  - test_sim.py
+- id: move
+  title: move_arm reaches its target
+  tests:
+  - test_move.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_sim.py
+  - test_move.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- controllers
+- graph
+- tf
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Trajectories and position control
+  kind: read
+  content: content/01-concept.md
+  completion:
+    type: manual
+- id: interfaces
+  title: Interfaces and controllers
+  kind: code
+  content: content/02-interfaces.md
+  focus_file: arm_sim/urdf/arm.ros2_control.xacro
+  hints:
+  - Every joint a controller should command needs an entry in <ros2_control>; the position_joint macro writes one.
+  - 'Nine entries in total: seven arm joints and both fingers. Then the <gazebo> plugin element, as for the diffbot.'
+  - 'arm_controller joints: shoulder_pan_joint … gripper_roll_joint, in order; gripper_controller: left_finger_joint,
+    right_finger_joint.'
+  - <xacro:position_joint name="shoulder_pitch_joint"/> … and the <gazebo><plugin filename="gz_ros2_control-system"
+    …> block.
+  completion:
+    type: controllers_active
+    controllers:
+    - joint_state_broadcaster
+    - arm_controller
+    - gripper_controller
+- id: validate
+  title: Check the controllers
+  kind: code
+  content: content/03-validate.md
+  completion:
+    type: checkpoint
+    checkpoint: sim
+- id: move_node
+  title: Write move_arm (C++)
+  kind: code
+  content: content/04-move.md
+  focus_file: arm_sim/src/move_arm.cpp
+  hints:
+  - A message published before anyone subscribes is lost; poll from a timer until the controller is listening.
+  - JointTrajectory = joint names + points; one point holds positions and time_from_start.
+  - pub_ = create_publisher<trajectory_msgs::msg::JointTrajectory>("/arm_controller/joint_trajectory", 10); timer_
+    = create_wall_timer(200ms, [this]() {try_send();});
+  - point.positions = positions_; point.time_from_start = rclcpp::Duration::from_seconds(duration_); traj.points.push_back(point);
+    pub_->publish(traj);
+  completion:
+    type: checkpoint
+    checkpoint: move
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/05-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

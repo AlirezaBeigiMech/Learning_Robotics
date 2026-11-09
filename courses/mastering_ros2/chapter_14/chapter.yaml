@@ -1,0 +1,29 @@
+number: 14
+title: CPU and IRQ Isolation and Latency Analysis
+summary: Isolate cores, move interrupts and housekeeping away, and measure the result with cyclictest and rtla.
+status: planned
+runtime: linux_rt_host
+competencies:
+- rt_cpp
+- x86_perf
+- linux
+readings:
+- source: sp
+  chapters: 6, 14
+  note: 14.9 hwlat
+- source: docs
+  note: kernel-parameters (isolcpus, nohz_full, rcu_nocbs, irqaffinity); IRQ affinity; rtla timerlat/osnoise; Red
+    Hat RHEL for Real Time tuning guide
+labs:
+- Live latency histogram tab fed by cyclictest under stress-ng
+- 'Isolation wizard: change one setting, re-measure, compare histograms side by side'
+- rtla timerlat to attribute a latency spike to IRQ, softirq or thread
+lessons: []
+topics:
+- isolcpus
+- nohz_full
+- IRQ affinity
+- cyclictest
+- rtla
+- stress-ng
+final_project: 'A tuning report: baseline vs tuned worst-case latency, with evidence.'

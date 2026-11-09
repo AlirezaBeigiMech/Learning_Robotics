@@ -1,0 +1,154 @@
+id: ch05_webots
+title: A Webots Driver in C++, and One Controller for Two Simulators
+description: Write the C++ node that drives the Webots robot through the Webots controller API (wheels, encoders, lidar,
+  simulated clock), then a go-to-goal controller that runs unchanged in Webots and CoppeliaSim.
+book_reference:
+  chapter: 5
+  title: Simulating Robots Using ROS, CoppeliaSim, and Webots
+  sections:
+  - Setting up Webots with ROS
+  - Writing your first controller
+  - Writing a teleop node using webots_ros
+difficulty: advanced
+estimated_minutes: 120
+objectives:
+- Explain Webots' extern controllers and the step-based controller loop.
+- Use the Webots C API from a C++ ROS 2 node (motors, position sensors, lidar) and publish simulated time on /clock.
+- Convert a simulator's sensor data to ROS conventions (LaserScan angle order, frames, stamps).
+- Add a command time-out, the safety behaviour every robot driver needs.
+- Write a controller against the portable /cmd_vel → /odom contract and run it unchanged on two simulators.
+prerequisites:
+- ch05_coppeliasim
+ros_dependencies:
+- rclcpp
+- geometry_msgs
+- nav_msgs
+- sensor_msgs
+- rosgraph_msgs
+- tf2_ros
+- robot_state_publisher
+skills:
+- sim.webots
+- sim.adapter_contract
+- ros2.cpp.sensor_conversion
+- ros2.cpp.sim_time
+- control.go_to_goal
+requires:
+- webots
+- coppeliasim
+workspace:
+  package: diffbot_webots
+  uses:
+  - diffbot_coppelia
+checkpoints:
+- id: driver
+  title: Drive, odometry, joint states and clock
+  tests:
+  - test_driver.py
+- id: scan
+  title: Laser scan in ROS conventions
+  tests:
+  - test_scan.py
+- id: portable
+  title: One controller, two simulators
+  tests:
+  - test_portable.py
+- id: final
+  title: Final submission (includes hidden tests)
+  tests:
+  - test_driver.py
+  - test_scan.py
+  - test_portable.py
+  - test_hidden.py
+  final: true
+lab_tabs:
+- robot
+- graph
+- topics
+- tf
+- terminal
+- tests
+levels:
+  guided: starter
+steps:
+- id: concept
+  title: Webots and extern controllers
+  kind: read
+  content: content/01-concept.md
+  completion:
+    type: manual
+- id: start
+  title: Start Webots
+  kind: run
+  content: content/02-start.md
+  focus_file: diffbot_webots/launch/sim.launch.xml
+  completion:
+    type: manual
+- id: command
+  title: Commands to motors, with a time-out
+  kind: code
+  content: content/03-command.md
+  focus_file: diffbot_webots/src/webots_driver.cpp
+  hints:
+  - 'Same inverse kinematics as the Lua bridge; only the API differs: wb_motor_set_velocity(motor, rad_per_s).'
+  - 'In the callback: cmd_ = msg; last_cmd_time_ = wb_robot_get_time(); (simulated seconds, the clock the time-out
+    is measured in).'
+  - 'cmd_sub_ = create_subscription<geometry_msgs::msg::Twist>("/cmd_vel", 10, [this](const geometry_msgs::msg::Twist
+    & msg) {cmd_ = msg; last_cmd_time_ = wb_robot_get_time();});'
+  - 'double v = cmd_.linear.x, w = cmd_.angular.z; if (t - last_cmd_time_ > kCmdTimeout) {v = w = 0.0;} then
+    wb_motor_set_velocity(left_motor_, (v - w * kWheelSeparation / 2) / kWheelRadius) and + for the right.'
+  completion:
+    type: graph
+    node: /webots_driver
+    subscribes: /cmd_vel
+- id: odometry
+  title: Odometry and TF
+  kind: code
+  content: content/04-odometry.md
+  focus_file: diffbot_webots/src/webots_driver.cpp
+  hints:
+  - The CoppeliaSim bridge's TODO 4 and 5, in C++. std::atan2(std::sin(a), std::cos(a)) wraps an angle.
+  - 'odom.pose.pose.orientation.z = std::sin(yaw_ / 2); odom.pose.pose.orientation.w = std::cos(yaw_ / 2);'
+  - 'geometry_msgs::msg::TransformStamped tf; tf.header = odom.header; tf.child_frame_id = "base_link"; translation
+    x_, y_, kWheelRadius; tf.transform.rotation = odom.pose.pose.orientation; tf_->sendTransform(tf);'
+  completion:
+    type: checkpoint
+    checkpoint: driver
+- id: scan
+  title: The laser in ROS conventions
+  kind: code
+  content: content/05-scan.md
+  focus_file: diffbot_webots/src/webots_driver.cpp
+  hints:
+  - Draw it. Webots' first beam points to the robot's left-back (+fov/2) and they sweep clockwise. ROS's first beam
+    is at angle_min = −fov/2 (right-back) and they sweep counter-clockwise.
+  - The beams are the same, only their order differs. Copy them, then reverse the vector.
+  - 'scan.angle_increment = fov / n; scan.angle_min = -fov / 2 + scan.angle_increment / 2; scan.angle_max = scan.angle_min
+    + (n - 1) * scan.angle_increment;'
+  - 'scan.ranges.assign(image, image + n); std::reverse(scan.ranges.begin(), scan.ranges.end());'
+  completion:
+    type: checkpoint
+    checkpoint: scan
+- id: portable
+  title: One controller, two simulators
+  kind: code
+  content: content/06-portable.md
+  focus_file: diffbot_webots/src/go_to_goal.cpp
+  hints:
+  - 'heading_error = std::atan2(dy, dx) − yaw, wrapped with atan2(sin, cos).'
+  - 'angular.z = clamp(2.0 · heading_error, ±max_turn_); linear.x = clamp(0.8 · distance, 0, max_speed_) · max(0,
+    cos(heading_error)).'
+  - Set reached_ the first time the distance is below tolerance_, log once, and publish zero from then on, so noise
+    in the odometry cannot restart the robot.
+  completion:
+    type: checkpoint
+    checkpoint: portable
+- id: submit
+  title: Submit
+  kind: submit
+  content: content/07-submit.md
+  completion:
+    type: checkpoint
+    checkpoint: final
+completion:
+  checkpoint: final

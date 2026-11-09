@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<!-- Seven-DOF serial manipulator with a two-finger gripper. Every joint frame sits at the bottom of the
+     link it moves; links extend along their local +z axis. Units: metres, radians, kilograms. -->
+<robot name="seven_dof_arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="inertial.xacro"/>
+
+  <!-- ===== parameters ===== -->
+  <xacro:property name="effort" value="30"/>
+  <xacro:property name="velocity" value="1.0"/>
+
+  <material name="grey"><color rgba="0.6 0.6 0.62 1"/></material>
+  <material name="blue"><color rgba="0.2 0.45 0.85 1"/></material>
+  <material name="orange"><color rgba="0.95 0.55 0.15 1"/></material>
+
+  <!-- ===== segment macros ===== -->
+  <!-- A revolute joint plus a cylindrical link standing on it. -->
+  <xacro:macro name="cylinder_segment" params="name parent joint_z axis lower upper r h m color">
+    <joint name="${name}_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+      <origin xyz="0 0 ${joint_z}" rpy="0 0 0"/>
+      <axis xyz="${axis}"/>
+      <limit lower="${lower}" upper="${upper}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 ${h/2}" rpy="0 0 0"/>
+        <geometry><cylinder radius="${r}" length="${h}"/></geometry>
+        <material name="${color}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${h/2}" rpy="0 0 0"/>
+        <geometry><cylinder radius="${r}" length="${h}"/></geometry>
+      </collision>
+      <xacro:cylinder_inertial m="${m}" r="${r}" h="${h}">
+        <origin xyz="0 0 ${h/2}" rpy="0 0 0"/>
+      </xacro:cylinder_inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- A revolute joint plus a box-shaped link (x by y by z) standing on it. -->
+  <xacro:macro name="box_segment" params="name parent joint_z axis lower upper x y z m color">
+    <joint name="${name}_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${name}_link"/>
+      <origin xyz="0 0 ${joint_z}" rpy="0 0 0"/>
+      <axis xyz="${axis}"/>
+      <limit lower="${lower}" upper="${upper}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
+        <geometry><box size="${x} ${y} ${z}"/></geometry>
+        <material name="${color}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
+        <geometry><box size="${x} ${y} ${z}"/></geometry>
+      </collision>
+      <xacro:box_inertial m="${m}" x="${x}" y="${y}" z="${z}">
+        <origin xyz="0 0 ${z/2}" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- ===== the arm ===== -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.06" length="0.05"/></geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.06" length="0.05"/></geometry>
+    </collision>
+    <xacro:cylinder_inertial m="1.0" r="0.06" h="0.05">
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+    </xacro:cylinder_inertial>
+  </link>
+
+  <xacro:cylinder_segment name="shoulder_pan" parent="base_link" joint_z="0.05" axis="0 0 1"
+                          lower="-2.6" upper="2.6" r="0.04" h="0.08" m="0.5" color="blue"/>
+  <xacro:box_segment name="shoulder_pitch" parent="shoulder_pan_link" joint_z="0.08" axis="0 1 0"
+                     lower="-1.2" upper="1.9" x="0.04" y="0.04" z="0.14" m="0.4" color="grey"/>
+  <xacro:cylinder_segment name="elbow_roll" parent="shoulder_pitch_link" joint_z="0.14" axis="0 0 1"
+                          lower="-2.6" upper="2.6" r="0.02" h="0.06" m="0.2" color="blue"/>
+  <xacro:box_segment name="elbow_pitch" parent="elbow_roll_link" joint_z="0.06" axis="0 1 0"
+                     lower="-1.6" upper="1.9" x="0.04" y="0.04" z="0.22" m="0.4" color="grey"/>
+  <xacro:cylinder_segment name="wrist_roll" parent="elbow_pitch_link" joint_z="0.22" axis="0 0 1"
+                          lower="-2.6" upper="2.6" r="0.02" h="0.04" m="0.1" color="blue"/>
+  <xacro:box_segment name="wrist_pitch" parent="wrist_roll_link" joint_z="0.04" axis="0 1 0"
+                     lower="-1.6" upper="1.9" x="0.04" y="0.04" z="0.06" m="0.15" color="grey"/>
+  <xacro:cylinder_segment name="gripper_roll" parent="wrist_pitch_link" joint_z="0.06" axis="0 0 1"
+                          lower="-2.6" upper="2.6" r="0.04" h="0.02" m="0.1" color="blue"/>
+
+  <!-- ===== gripper: two prismatic fingers; the right one mirrors the left (mimic) ===== -->
+  <xacro:macro name="finger" params="side y_sign">
+    <joint name="${side}_finger_joint" type="prismatic">
+      <parent link="gripper_roll_link"/>
+      <child link="${side}_finger_link"/>
+      <origin xyz="0 ${y_sign * 0.01} 0.02" rpy="0 0 0"/>
+      <axis xyz="0 ${y_sign} 0"/>
+      <limit lower="0" upper="0.03" effort="10" velocity="0.5"/>
+      <xacro:if value="${side == 'right'}">
+        <mimic joint="left_finger_joint" multiplier="1" offset="0"/>
+      </xacro:if>
+    </joint>
+    <link name="${side}_finger_link">
+      <visual>
+        <origin xyz="0 0 0.04" rpy="0 0 0"/>
+        <geometry><box size="0.01 0.01 0.08"/></geometry>
+        <material name="orange"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.04" rpy="0 0 0"/>
+        <geometry><box size="0.01 0.01 0.08"/></geometry>
+      </collision>
+      <xacro:box_inertial m="0.02" x="0.01" y="0.01" z="0.08">
+        <origin xyz="0 0 0.04" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+  </xacro:macro>
+
+  <xacro:finger side="left" y_sign="1"/>
+  <xacro:finger side="right" y_sign="-1"/>
+
+  <!-- grasp_frame: the point between the fingertips that motion planning will target (Chapter 6/7) -->
+  <joint name="grasp_frame_joint" type="fixed">
+    <parent link="gripper_roll_link"/>
+    <child link="grasp_frame"/>
+    <origin xyz="0 0 0.10" rpy="0 0 0"/>
+  </joint>
+  <link name="grasp_frame"/>
+
+</robot>
